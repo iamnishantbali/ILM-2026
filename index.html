@@ -6,7 +6,7 @@
 <title>ILM 2026 — Snapshot Prototype</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Fira+Code:wght@400&display=swap" rel="stylesheet" />
 <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
@@ -61,6 +61,12 @@
     <symbol id="i-robot" viewBox="0 0 16 16"><rect x="2.5" y="5" width="11" height="8" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M8 2.5V5" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/><circle cx="8" cy="2.3" r=".9" fill="none" stroke="currentColor" stroke-width="1"/><circle cx="5.8" cy="8" r=".9" fill="currentColor"/><circle cx="10.2" cy="8" r=".9" fill="currentColor"/><path d="M6 10.8h4" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></symbol>
     <symbol id="i-hammer" viewBox="0 0 16 16"><path d="m8.5 6.5-6 6a1 1 0 0 0 1.4 1.4l6-6M7 3.6l1.8-1.4c1.8-.8 4 .2 4.8 1.4l-1.2.4 1.4 2.5-1.5 1L11 5.2 8.7 5.3 7 3.6Z" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linejoin="round"/></symbol>
     <symbol id="i-server" viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="4.4" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><rect x="2.5" y="9.1" width="11" height="4.4" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><circle cx="5" cy="4.7" r=".8" fill="currentColor"/><circle cx="5" cy="11.3" r=".8" fill="currentColor"/></symbol>
+    <symbol id="i-copy" viewBox="0 0 16 16"><rect x="5.5" y="5.5" width="8" height="8" rx="1" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M10.5 5.5v-2a1 1 0 0 0-1-1h-6a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2" fill="none" stroke="currentColor" stroke-width="1.1"/></symbol>
+    <symbol id="i-arrows-out" viewBox="0 0 16 16"><path d="M9.5 2.5h4v4M13 3 9.5 6.5M6.5 13.5h-4v-4M3 13l3.5-3.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-check-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="m5.3 8.3 1.8 1.8 3.6-3.9" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-x-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="m5.8 5.8 4.4 4.4m0-4.4-4.4 4.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-warning-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
+    <symbol id="i-sidebar-collapse" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.1"/><path d="m10.8 6.2-1.8 1.8 1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
@@ -153,7 +159,7 @@
               <!-- Populated state (screen 4) -->
               <div class="menu__list" id="version-menu-list" hidden></div>
               <div class="menu__footer menu__footer--single" id="version-menu-showall" hidden>
-                <button class="btn btn--sm btn--secondary btn--block">Show all versions</button>
+                <button class="btn btn--sm btn--secondary btn--block" id="show-all-versions">Show all versions</button>
               </div>
               <div class="menu__footer">
                 <button class="btn btn--sm btn--secondary" id="menu-create-snapshot">Create snapshot</button>
@@ -236,6 +242,10 @@
   </header>
 
   <div class="drawer__body">
+    <div class="alert alert--destructive" id="snapshot-error" hidden>
+      <svg width="20" height="20"><use href="#i-warning-circle"/></svg>
+      <span id="snapshot-error-text">Couldn&rsquo;t create the snapshot.</span>
+    </div>
     <div class="field">
       <label class="field__label" for="snapshot-name">Name <span class="req">*</span></label>
       <input class="field__input" id="snapshot-name" type="text" value="Slack version 1" />
@@ -283,6 +293,144 @@
   <footer class="drawer__footer">
     <button class="btn btn--sm btn--primary" id="drawer-create">Create snapshot</button>
     <button class="btn btn--sm btn--ghost" id="drawer-close">Close</button>
+  </footer>
+</aside>
+
+<!-- ============ Screens 7–9: Version history panel ============ -->
+<aside class="vh-panel" id="vh-panel" role="dialog" aria-modal="true" aria-labelledby="vh-title">
+  <header class="drawer__header">
+    <div class="drawer__header-row">
+      <h2 class="drawer__title" id="vh-title">Version history</h2>
+      <div class="drawer__header-right">
+        <a class="drawer__guide-link" href="#" onclick="return false">
+          <svg width="16" height="16"><use href="#i-book-open"/></svg>
+          Version history guide
+          <svg width="14" height="14"><use href="#i-arrow-out"/></svg>
+        </a>
+        <div class="drawer__header-divider"></div>
+        <button class="close-btn" id="vh-close-x" aria-label="Close">
+          <svg width="16" height="16"><use href="#i-x"/></svg>
+        </button>
+      </div>
+    </div>
+    <p class="vh-breadcrumb"><span>Salesforce integration /</span> Version history</p>
+  </header>
+
+  <div class="vh-main">
+    <!-- Left: versions sidebar -->
+    <aside class="vh-sidebar">
+      <h3 class="vh-sidebar__title">Versions</h3>
+      <div class="vh-sidebar__body">
+        <div class="vh-sidebar__actions">
+          <button class="btn btn--sm btn--secondary" id="vh-create-snapshot">Create snapshot</button>
+          <button class="btn btn--sm btn--secondary" id="vh-pull-changes">Pull changes</button>
+        </div>
+        <div class="vh-sidebar__search">
+          <div class="search-input search-input--squared">
+            <svg width="16" height="16"><use href="#i-search"/></svg>
+            <input type="text" id="vh-search" placeholder="Search version" aria-label="Search version" />
+          </div>
+          <div class="vh-filter-anchor">
+            <button class="icon-btn icon-btn--sm icon-btn--secondary" id="vh-filter-btn" aria-label="Filter versions" aria-expanded="false">
+              <svg width="16" height="16"><use href="#i-funnel"/></svg>
+            </button>
+            <!-- Screen 9: filter menu (status, username, revision type) -->
+            <div class="menu vh-filter-menu" id="vh-filter-menu" aria-label="Filter versions">
+              <div class="vh-filter-group">
+                <p class="vh-filter-group__label">Status</p>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="status" value="Completed" checked /> Completed</label>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="status" value="Failed" checked /> Failed</label>
+              </div>
+              <div class="vh-filter-group">
+                <p class="vh-filter-group__label">Revision type</p>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="type" value="Snapshot" checked /> Snapshot</label>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="type" value="Pull" checked /> Pull</label>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="type" value="Revert" checked /> Revert</label>
+              </div>
+              <div class="vh-filter-group">
+                <p class="vh-filter-group__label">Username</p>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="by" value="Nishant Bali" checked /> Nishant Bali</label>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="by" value="Priyanka Kaundal" checked /> Priyanka Kaundal</label>
+                <label class="vh-filter-option"><input type="checkbox" data-filter="by" value="System" checked /> System</label>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="vh-list" id="vh-list"><!-- version items injected --></div>
+      </div>
+    </aside>
+
+    <!-- Right: version detail -->
+    <section class="vh-detail">
+      <div class="vh-detail__header">
+        <div class="vh-detail__heading">
+          <span class="menu-item__badge" id="vh-detail-badge">Pull</span>
+          <h3 class="vh-detail__title" id="vh-detail-title">Test pull created</h3>
+          <p class="vh-detail__desc" id="vh-detail-desc">Placeholder for the user provided detailed description will be shown here.</p>
+        </div>
+        <div class="vh-revert">
+          <span class="vh-revert__label">Revert to:</span>
+          <div class="split-btn" id="vh-split">
+            <button class="split-btn__main" id="vh-revert-btn">Before this version</button>
+            <button class="split-btn__caret" id="vh-revert-caret" aria-label="Revert options" aria-expanded="false">
+              <svg width="14" height="14"><use href="#i-caret-down"/></svg>
+            </button>
+            <div class="menu vh-revert-menu" id="vh-revert-menu">
+              <button class="vh-revert-option" data-revert="Before this version">Before this version</button>
+              <button class="vh-revert-option" data-revert="This version">This version</button>
+            </div>
+          </div>
+        </div>
+      </div>
+      <nav class="tabs vh-tabs" aria-label="Version detail views">
+        <button class="tab is-active" id="vh-tab-details">View details</button>
+        <button class="tab" id="vh-tab-resources">View resources changed</button>
+      </nav>
+
+      <!-- Screen 7: View details -->
+      <div class="vh-tabpane" id="vh-pane-details">
+        <div class="vh-details-table" id="vh-details-table"><!-- rows injected --></div>
+      </div>
+
+      <!-- Screen 8: View resources changed -->
+      <div class="vh-tabpane" id="vh-pane-resources" hidden>
+        <aside class="vh-resources">
+          <div class="vh-resources__header">
+            <span class="vh-resources__title">Resources</span>
+            <button class="icon-btn icon-btn--xs icon-btn--secondary" aria-label="Collapse resources">
+              <svg width="16" height="16"><use href="#i-sidebar-collapse"/></svg>
+            </button>
+          </div>
+          <div class="vh-tree" id="vh-tree"><!-- tree injected --></div>
+        </aside>
+        <div class="vh-compare">
+          <div class="vh-compare__header">
+            <span class="vh-compare__heading">
+              <svg width="20" height="20"><use href="#i-flow-arrow"/></svg>
+              <span id="vh-compare-title">Send errors to slack</span>
+            </span>
+            <span class="tag tag--yellow">Used by : 4</span>
+            <button class="icon-btn icon-btn--xs icon-btn--ghost" aria-label="Expand comparison">
+              <svg width="16" height="16"><use href="#i-arrows-out"/></svg>
+            </button>
+          </div>
+          <div class="vh-compare__body">
+            <div class="vh-code-card">
+              <div class="vh-code-card__title">Before pull</div>
+              <div class="vh-code" id="vh-code-before"></div>
+            </div>
+            <div class="vh-code-card">
+              <div class="vh-code-card__title">After pull</div>
+              <div class="vh-code" id="vh-code-after"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <footer class="vh-footer">
+    <button class="btn btn--sm btn--ghost" id="vh-close">Close</button>
   </footer>
 </aside>
 
