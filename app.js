@@ -289,7 +289,7 @@
   shroud.addEventListener("click", closeDrawer);
 
   document.getElementById("menu-pull-changes").addEventListener("click", () => {
-    showToast("Pull changes is part of the next journey — not in this prototype");
+    openPullModal();
   });
 
   function formatNow() {
@@ -388,7 +388,7 @@
   document.getElementById("vh-close-x").addEventListener("click", closePanel);
   document.getElementById("vh-create-snapshot").addEventListener("click", openDrawer);
   document.getElementById("vh-pull-changes").addEventListener("click", () => {
-    showToast("Pull changes is part of the next journey — not in this prototype");
+    openPullModal();
   });
 
   function activeFilters() {
@@ -627,11 +627,513 @@
     el.innerHTML = `<div class="vh-code__lines">${numbers}</div><pre class="vh-code__text">${code}</pre>`;
   }
 
+  /* ==========================================================
+     Pull journey (Figma "Create pull" section, node 232:41802)
+       Step 1  Select assets  (empty → populated states)
+       Step 2  Review changes (before/after diff, read-only)
+       Step 3  Merge          (Resolve conflict per resource)
+       + Ignore fields drawer, Resolve conflicts dialog
+     ========================================================== */
+
+  const cpShroud = document.getElementById("cp-shroud");
+  const cpModal = document.getElementById("cp-modal");
+  const cpSteps = Array.from(document.querySelectorAll(".cp-step"));
+  const cpPane1 = document.getElementById("cp-pane-1");
+  const cpPaneReview = document.getElementById("cp-pane-review");
+  const cpNext = document.getElementById("cp-next");
+  const cpAssetsEmpty = document.getElementById("cp-assets-empty");
+  const cpAssetsList = document.getElementById("cp-assets-list");
+  const cpSelectAllWrap = document.getElementById("cp-selectall-wrap");
+  const cpSelectAll = document.getElementById("cp-selectall");
+  const cpResolveBtn = document.getElementById("cp-resolve-btn");
+
+  let cpStep = 1;
+  const cpState = { env: null, integration: null };
+
+  // Asset groups: initial checkbox states per the Figma "Create pull - 2" frame
+  const assetGroups = [
+    {
+      name: "Flows", count: 10, expanded: true,
+      items: [
+        { name: "Automated Customer Onboarding and Account Provisioning Workflow", checked: true },
+        { name: "End-to-End E-commerce Order Processing and Inventory Synchronization Flow", checked: true },
+        { name: "Multi-System Customer Data Synchronization and Deduplication Pipeline", checked: true },
+        { name: "Real-Time Sales Order, Invoice, and Payment Reconciliation Automation", checked: true },
+      ],
+    },
+    { name: "APIs", count: 10, expanded: false, items: [{ name: "Orders lookup API", checked: true }, { name: "Inventory sync API", checked: false }] },
+    { name: "Tools", count: 10, expanded: false, items: [{ name: "JSON validator", checked: true }, { name: "Payload formatter", checked: true }] },
+    { name: "MCPs", count: 10, expanded: false, items: [{ name: "Salesforce MCP server", checked: false }, { name: "Slack MCP server", checked: false }] },
+    { name: "Agents", count: 10, expanded: false, items: [{ name: "Order triage agent", checked: true }, { name: "Refund review agent", checked: false }] },
+    { name: "Imports", count: 10, expanded: false, items: [{ name: "Netsuite order import", checked: false }, { name: "Contact import", checked: false }] },
+    { name: "Exports", count: 10, expanded: false, items: [{ name: "Salesforce lead export", checked: true }, { name: "Invoice export", checked: false }] },
+  ];
+
+  // Resources shown in Review/Merge; conflicted ones carry conflict fields
+  const pullResources = [
+    {
+      group: "Flows", icon: "i-flow-arrow", count: 4, expanded: true,
+      items: [
+        {
+          name: "Send errors to slack", usedBy: 4,
+          conflicts: [
+            { field: "schedule.cron", source: "“0 */5 ***” every 5 min", current: "“0 */15 ***” every 15 min", choice: "custom", custom: "" },
+            { field: "retryPolicy.maxAttempts", source: "5", current: "3", choice: "source", custom: "" },
+          ],
+          resolved: false,
+        },
+        {
+          name: "Transfer valid JSON files to Planful", usedBy: 2,
+          conflicts: [
+            { field: "export.pageSize", source: "100", current: "50", choice: "source", custom: "" },
+          ],
+          resolved: false,
+        },
+        { name: "Salesforce to Netsuite to Slack", usedBy: 3 },
+        { name: "Data cleaner", usedBy: 1 },
+      ],
+    },
+    { group: "APIs", icon: "i-gear-api", count: 2, expanded: false, items: [{ name: "Orders lookup API", usedBy: 2 }] },
+    { group: "MCPs", icon: "i-server", count: null, expanded: false, items: [{ name: "Salesforce MCP server", usedBy: 1 }] },
+    { group: "Tools", icon: "i-hammer", count: null, expanded: false, items: [{ name: "JSON validator", usedBy: 1 }] },
+    { group: "Connections", icon: "i-link", count: null, expanded: false, items: [{ name: "Slack connection", usedBy: 4 }] },
+  ];
+
+  let cpSelectedResource = pullResources[0].items[0];
+
+  function findResource(name) {
+    for (const g of pullResources) {
+      const hit = g.items.find((it) => it.name === name);
+      if (hit) return hit;
+    }
+    return null;
+  }
+
+  function openPullModal() {
+    closeVersionMenu();
+    cpShroud.classList.add("is-open");
+    cpModal.classList.add("is-open");
+    setCpStep(1);
+  }
+
+  function closePullModal() {
+    cpShroud.classList.remove("is-open");
+    cpModal.classList.remove("is-open");
+    closeIgnoreDrawer();
+    closeResolveDialog();
+  }
+
+  document.getElementById("cp-close-x").addEventListener("click", closePullModal);
+  document.getElementById("cp-cancel").addEventListener("click", closePullModal);
+
+  function setCpStep(step) {
+    cpStep = step;
+    cpSteps.forEach((el) => el.classList.toggle("is-active", Number(el.dataset.step) === step));
+    cpPane1.hidden = step !== 1;
+    cpPaneReview.hidden = step === 1;
+    if (step !== 1) {
+      renderCpTree();
+      renderCpCompare();
+    }
+    cpNext.textContent = "Next";
+  }
+
+  cpSteps.forEach((el) => {
+    el.addEventListener("click", () => {
+      const target = Number(el.dataset.step);
+      if (target > 1 && !sourceChosen()) {
+        showToast("Choose a source environment and integration first");
+        return;
+      }
+      setCpStep(target);
+    });
+  });
+
+  function sourceChosen() {
+    return Boolean(cpState.env && cpState.integration);
+  }
+
+  cpNext.addEventListener("click", () => {
+    if (cpStep === 1) {
+      if (!sourceChosen()) {
+        showToast("Choose a source environment and integration first");
+        return;
+      }
+      setCpStep(2);
+    } else if (cpStep === 2) {
+      setCpStep(3);
+    } else {
+      showToast("The final merge step will be added once its designs are ready");
+    }
+  });
+
+  /* Step 1: selects */
+
+  document.querySelectorAll(".cp-select").forEach((sel) => {
+    const trig = sel.querySelector(".cp-select__trigger");
+    const menuEl = sel.querySelector(".cp-select__menu");
+    const valueEl = sel.querySelector(".cp-select__value");
+    trig.addEventListener("click", (e) => {
+      e.stopPropagation();
+      document.querySelectorAll(".cp-select__menu.is-open").forEach((m) => m !== menuEl && m.classList.remove("is-open"));
+      const open = menuEl.classList.toggle("is-open");
+      trig.setAttribute("aria-expanded", open);
+    });
+    menuEl.querySelectorAll("[role=option]").forEach((opt) => {
+      opt.addEventListener("click", (e) => {
+        e.stopPropagation();
+        valueEl.textContent = opt.textContent;
+        valueEl.classList.remove("is-placeholder");
+        menuEl.classList.remove("is-open");
+        trig.setAttribute("aria-expanded", "false");
+        cpState[sel.id === "cp-env" ? "env" : "integration"] = opt.textContent;
+        updateAssetsPanel();
+      });
+    });
+  });
+
+  document.addEventListener("click", () => {
+    document.querySelectorAll(".cp-select__menu.is-open").forEach((m) => m.classList.remove("is-open"));
+  });
+
+  function updateAssetsPanel() {
+    const ready = sourceChosen();
+    cpAssetsEmpty.hidden = ready;
+    cpAssetsList.hidden = !ready;
+    cpSelectAllWrap.hidden = !ready;
+    if (ready) renderAssetGroups();
+  }
+
+  /* Step 1: tri-state asset checkboxes */
+
+  function cbxHtml(state, extra = "") {
+    return `<span class="cbx" data-state="${state}" role="checkbox" aria-checked="${state === "checked"}" ${extra}>
+      <svg class="cbx-check" width="12" height="12"><use href="#i-check"/></svg>
+      <svg class="cbx-minus" width="12" height="12"><use href="#i-minus"/></svg>
+    </span>`;
+  }
+
+  function groupState(g) {
+    const done = g.items.filter((it) => it.checked).length;
+    return done === 0 ? "unchecked" : done === g.items.length ? "checked" : "indeterminate";
+  }
+
+  function renderAssetGroups() {
+    cpAssetsList.innerHTML = assetGroups
+      .map((g, gi) => {
+        const state = groupState(g);
+        const body = g.expanded
+          ? `<div class="cp-group__body">${g.items
+              .map(
+                (it, ii) => `<label class="cp-item" data-g="${gi}" data-i="${ii}">
+                  ${cbxHtml(it.checked ? "checked" : "unchecked")}
+                  ${it.name}
+                </label>`
+              )
+              .join("")}</div>`
+          : "";
+        return `<div class="cp-group${g.expanded ? " is-expanded" : ""}">
+          <div class="cp-group__header">
+            <button class="cp-group__caret" data-toggle="${gi}" aria-label="Toggle ${g.name}" aria-expanded="${g.expanded}">
+              <svg width="16" height="16"><use href="#i-caret-down"/></svg>
+            </button>
+            <span data-gcbx="${gi}">${cbxHtml(state)}</span>
+            <span class="cp-group__label">${g.name}</span>
+            <span class="cp-group__badge">${g.count}</span>
+          </div>
+          ${body}
+        </div>`;
+      })
+      .join("");
+
+    updateSelectAll();
+
+    cpAssetsList.querySelectorAll("[data-toggle]").forEach((el) => {
+      el.addEventListener("click", () => {
+        assetGroups[Number(el.dataset.toggle)].expanded = !assetGroups[Number(el.dataset.toggle)].expanded;
+        renderAssetGroups();
+      });
+    });
+    cpAssetsList.querySelectorAll("[data-gcbx]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const g = assetGroups[Number(el.dataset.gcbx)];
+        const target = groupState(g) !== "checked";
+        g.items.forEach((it) => (it.checked = target));
+        renderAssetGroups();
+      });
+    });
+    cpAssetsList.querySelectorAll(".cp-item").forEach((el) => {
+      el.addEventListener("click", () => {
+        const it = assetGroups[Number(el.dataset.g)].items[Number(el.dataset.i)];
+        it.checked = !it.checked;
+        renderAssetGroups();
+      });
+    });
+  }
+
+  function updateSelectAll() {
+    const states = assetGroups.map(groupState);
+    const all = states.every((s) => s === "checked");
+    const none = states.every((s) => s === "unchecked");
+    cpSelectAll.dataset.state = all ? "checked" : none ? "unchecked" : "indeterminate";
+    cpSelectAll.setAttribute("aria-checked", all);
+    cpSelectAll.innerHTML = `<svg class="cbx-check" width="12" height="12"><use href="#i-check"/></svg>
+      <svg class="cbx-minus" width="12" height="12"><use href="#i-minus"/></svg>`;
+  }
+
+  cpSelectAll.addEventListener("click", () => {
+    const target = cpSelectAll.dataset.state !== "checked";
+    assetGroups.forEach((g) => g.items.forEach((it) => (it.checked = target)));
+    renderAssetGroups();
+  });
+
+  /* Steps 2 & 3: resources tree + compare */
+
+  function resourceHasOpenConflict(it) {
+    return Boolean(it.conflicts && !it.resolved);
+  }
+
+  function renderCpTree() {
+    const tree = document.getElementById("cp-tree");
+    tree.innerHTML = pullResources
+      .map((g, gi) => {
+        const groupBtn = `
+        <button class="tree-group${g.expanded ? " is-expanded" : ""}" data-cpgroup="${gi}" aria-expanded="${g.expanded}">
+          <svg class="tree-caret" width="14" height="14"><use href="#i-caret-right"/></svg>
+          <svg width="16" height="16"><use href="#${g.icon}"/></svg>
+          <span class="tree-group__label">${g.group}</span>
+          ${g.count ? `<span class="number-badge">${g.count}</span>` : ""}
+        </button>`;
+        const items = g.expanded
+          ? g.items
+              .map(
+                (it) => `<button class="tree-item${it === cpSelectedResource ? " is-selected" : ""}" data-cpres="${it.name}">
+                  <span>${it.name}</span>
+                  ${resourceHasOpenConflict(it) ? `<svg class="tree-item__warn" width="16" height="16"><use href="#i-warning"/></svg>` : ""}
+                </button>`
+              )
+              .join("")
+          : "";
+        return groupBtn + items;
+      })
+      .join("");
+
+    tree.querySelectorAll("[data-cpgroup]").forEach((el) => {
+      el.addEventListener("click", () => {
+        const g = pullResources[Number(el.dataset.cpgroup)];
+        g.expanded = !g.expanded;
+        renderCpTree();
+      });
+    });
+    tree.querySelectorAll("[data-cpres]").forEach((el) => {
+      el.addEventListener("click", () => {
+        cpSelectedResource = findResource(el.dataset.cpres);
+        renderCpTree();
+        renderCpCompare();
+      });
+    });
+  }
+
+  function renderCpCompare() {
+    document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
+    document.querySelector("#cp-pane-review .tag--yellow").textContent = `Used by : ${cpSelectedResource.usedBy}`;
+    cpResolveBtn.hidden = !(cpStep === 3 && resourceHasOpenConflict(cpSelectedResource));
+    renderCode("cp-code-before", codeBefore);
+    renderCode("cp-code-after", codeAfter);
+  }
+
+  /* Resolve conflicts dialog (step 3) */
+
+  const rcShroud = document.getElementById("rc-shroud");
+  const rcDialog = document.getElementById("rc-dialog");
+  const rcContent = document.getElementById("rc-content");
+
+  function openResolveDialog() {
+    renderResolveFields();
+    rcShroud.classList.add("is-open");
+    rcDialog.classList.add("is-open");
+  }
+
+  function closeResolveDialog() {
+    rcShroud.classList.remove("is-open");
+    rcDialog.classList.remove("is-open");
+  }
+
+  cpResolveBtn.addEventListener("click", openResolveDialog);
+  document.getElementById("rc-close-x").addEventListener("click", closeResolveDialog);
+  document.getElementById("rc-cancel").addEventListener("click", closeResolveDialog);
+
+  function rcCard(fi, choice, title, value, selected) {
+    return `<button class="rc-card${selected ? " is-selected" : ""}" data-f="${fi}" data-choice="${choice}" role="radio" aria-checked="${selected}">
+      <span class="rc-card__title">${title}</span>
+      <span class="rc-card__value">${value}</span>
+    </button>`;
+  }
+
+  function renderResolveFields() {
+    const conflicts = cpSelectedResource.conflicts || [];
+    rcContent.innerHTML = conflicts
+      .map(
+        (c, fi) => `<div class="rc-field">
+        <span class="rc-field__label">${c.field} <span class="req">*</span></span>
+        <div class="rc-field__cards" role="radiogroup" aria-label="${c.field}">
+          ${rcCard(fi, "source", "Use source", c.source, c.choice === "source")}
+          ${rcCard(fi, "current", "Keep current", c.current, c.choice === "current")}
+          ${rcCard(fi, "custom", "Custom", "Add a custom value", c.choice === "custom")}
+        </div>
+        <div class="rc-custom-row" ${c.choice === "custom" ? "" : "hidden"}>
+          <input class="field__input" type="text" placeholder="Enter custom value" value="${c.custom || ""}" data-custom="${fi}" aria-label="Custom value for ${c.field}" />
+        </div>
+      </div>`
+      )
+      .join("");
+
+    rcContent.querySelectorAll(".rc-card").forEach((el) => {
+      el.addEventListener("click", () => {
+        const c = cpSelectedResource.conflicts[Number(el.dataset.f)];
+        c.choice = el.dataset.choice;
+        renderResolveFields();
+        if (c.choice === "custom") {
+          const input = rcContent.querySelector(`[data-custom="${el.dataset.f}"]`);
+          if (input) input.focus();
+        }
+      });
+    });
+    rcContent.querySelectorAll("[data-custom]").forEach((input) => {
+      input.addEventListener("input", () => {
+        cpSelectedResource.conflicts[Number(input.dataset.custom)].custom = input.value;
+      });
+    });
+  }
+
+  document.getElementById("rc-save").addEventListener("click", () => {
+    const conflicts = cpSelectedResource.conflicts || [];
+    const missing = conflicts.find((c) => c.choice === "custom" && !c.custom.trim());
+    if (missing) {
+      const input = rcContent.querySelector(`[data-custom="${conflicts.indexOf(missing)}"]`);
+      input.classList.add("is-invalid");
+      input.focus();
+      return;
+    }
+    cpSelectedResource.resolved = true;
+    closeResolveDialog();
+    renderCpTree();
+    renderCpCompare();
+    showToast(`Conflicts resolved for “${cpSelectedResource.name}”`);
+  });
+
+  /* Ignore fields drawer */
+
+  const ignoreShroud = document.getElementById("ignore-shroud");
+  const ignoreDrawer = document.getElementById("ignore-drawer");
+  const ignoreCombo = document.getElementById("ignore-combo");
+  const ignoreSearch = document.getElementById("ignore-search");
+
+  const ignoreFields = [
+    {
+      name: "integration", depth: 0, group: true, children: [
+        { name: "name", depth: 1 },
+        { name: "description", depth: 1 },
+      ],
+    },
+    {
+      name: "export", depth: 0, group: true, children: [
+        { name: "name", depth: 1 },
+        {
+          name: "http", depth: 1, group: true, children: [
+            { name: "successMediaType", depth: 2 },
+            { name: "errorMediaType", depth: 2 },
+            { name: "relativeURI", depth: 2 },
+            { name: "method", depth: 2 },
+          ],
+        },
+      ],
+    },
+  ];
+
+  // Flatten with parent references for easy rendering + filtering
+  const igFlat = [];
+  (function flatten(nodes, path) {
+    nodes.forEach((n) => {
+      const entry = { ...n, path: path ? `${path}.${n.name}` : n.name, checked: false };
+      igFlat.push(entry);
+      if (n.children) flatten(n.children, entry.path);
+    });
+  })(ignoreFields, "");
+
+  function openIgnoreDrawer() {
+    ignoreShroud.classList.add("is-open");
+    ignoreDrawer.classList.add("is-open");
+    renderIgnoreTree();
+    setTimeout(() => ignoreSearch.focus(), 250);
+  }
+
+  function closeIgnoreDrawer() {
+    ignoreShroud.classList.remove("is-open");
+    ignoreDrawer.classList.remove("is-open");
+  }
+
+  document.getElementById("cp-ignore-fields").addEventListener("click", openIgnoreDrawer);
+  document.getElementById("ignore-close-x").addEventListener("click", closeIgnoreDrawer);
+  document.getElementById("ignore-close").addEventListener("click", closeIgnoreDrawer);
+  ignoreShroud.addEventListener("click", closeIgnoreDrawer);
+
+  document.getElementById("ignore-combo-toggle").addEventListener("click", (e) => {
+    const collapsed = ignoreCombo.classList.toggle("is-collapsed");
+    e.currentTarget.setAttribute("aria-expanded", !collapsed);
+  });
+  document.getElementById("ignore-done").addEventListener("click", () => {
+    ignoreCombo.classList.add("is-collapsed");
+    const n = igFlat.filter((f) => f.checked && !f.group).length;
+    ignoreSearch.value = n ? `${n} field${n === 1 ? "" : "s"} selected` : "";
+  });
+  ignoreSearch.addEventListener("focus", () => ignoreCombo.classList.remove("is-collapsed"));
+  ignoreSearch.addEventListener("input", renderIgnoreTree);
+
+  function renderIgnoreTree() {
+    const q = ignoreSearch.value.trim().toLowerCase();
+    const isCount = /^\d+ fields? selected$/.test(ignoreSearch.value.trim());
+    const visible = igFlat.filter((f) => !q || isCount || f.path.toLowerCase().includes(q) || f.name.toLowerCase().includes(q));
+    document.getElementById("ignore-tree").innerHTML = visible
+      .map(
+        (f, i) => `<label class="ig-node${f.group ? " ig-node--group" : ""}" data-depth="${f.depth}">
+          ${f.group ? `<span class="cp-group__caret" style="transform:rotate(180deg)"><svg width="14" height="14"><use href="#i-caret-down"/></svg></span>` : ""}
+          ${cbxHtml(f.checked ? "checked" : "unchecked", `data-ig="${igFlat.indexOf(f)}"`)}
+          <span class="ig-node__label">${f.name}</span>
+        </label>`
+      )
+      .join("");
+
+    document.querySelectorAll("[data-ig]").forEach((el) => {
+      el.addEventListener("click", (e) => {
+        e.preventDefault();
+        const f = igFlat[Number(el.dataset.ig)];
+        f.checked = !f.checked;
+        // A group checkbox toggles its descendants
+        if (f.group) {
+          igFlat.forEach((other) => {
+            if (other.path.startsWith(f.path + ".")) other.checked = f.checked;
+          });
+        }
+        renderIgnoreTree();
+      });
+    });
+  }
+
+  document.getElementById("ignore-save").addEventListener("click", () => {
+    const n = igFlat.filter((f) => f.checked && !f.group).length;
+    closeIgnoreDrawer();
+    showToast(n ? `${n} field${n === 1 ? "" : "s"} will be ignored during pull` : "No ignored fields set");
+  });
+
   /* ---------- Escape handling (topmost layer wins) ---------- */
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (drawer.classList.contains("is-open")) closeDrawer();
+    if (rcDialog.classList.contains("is-open")) closeResolveDialog();
+    else if (ignoreDrawer.classList.contains("is-open")) closeIgnoreDrawer();
+    else if (cpModal.classList.contains("is-open")) closePullModal();
+    else if (drawer.classList.contains("is-open")) closeDrawer();
     else if (filterMenu.classList.contains("is-open")) filterMenu.classList.remove("is-open");
     else if (revertMenu.classList.contains("is-open")) revertMenu.classList.remove("is-open");
     else if (panel.classList.contains("is-open")) closePanel();
