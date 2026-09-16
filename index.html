@@ -67,6 +67,11 @@
     <symbol id="i-x-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="m5.8 5.8 4.4 4.4m0-4.4-4.4 4.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
     <symbol id="i-warning-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
     <symbol id="i-sidebar-collapse" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.1"/><path d="m10.8 6.2-1.8 1.8 1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
+    <symbol id="i-warning" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
+    <symbol id="i-num-1" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6.6 6.2 8.3 5v6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-num-2" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6.2 6.3c.2-.8.9-1.4 1.8-1.4 1 0 1.8.7 1.8 1.7 0 1.7-3.6 2.5-3.6 4.4h3.7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="i-num-3" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6.3 5h3.4L7.8 7.4a1.9 1.9 0 1 1-1.6 3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
@@ -433,6 +438,194 @@
     <button class="btn btn--sm btn--ghost" id="vh-close">Close</button>
   </footer>
 </aside>
+
+<!-- ============ Pull journey: Create pull modal ============ -->
+<div class="cp-shroud" id="cp-shroud"></div>
+<div class="cp-modal" id="cp-modal" role="dialog" aria-modal="true" aria-labelledby="cp-title">
+  <header class="cp-header">
+    <div class="cp-header__text">
+      <div class="cp-header__title-row">
+        <h2 class="cp-header__title" id="cp-title">Create pull</h2>
+        <svg width="16" height="16" class="cp-help"><use href="#i-question"/></svg>
+      </div>
+      <p class="cp-header__subtitle">Pull changes between directly related integrations to review and merge updates.</p>
+    </div>
+    <div class="cp-header__right">
+      <button class="btn btn--sm btn--outline" id="cp-ignore-fields">Ignore fields</button>
+      <div class="drawer__header-divider"></div>
+      <button class="close-btn" id="cp-close-x" aria-label="Close">
+        <svg width="16" height="16"><use href="#i-x"/></svg>
+      </button>
+    </div>
+  </header>
+
+  <div class="cp-stepper" role="tablist" aria-label="Create pull steps">
+    <button class="cp-step is-active" data-step="1" role="tab"><svg width="16" height="16"><use href="#i-num-1"/></svg> Select assets</button>
+    <button class="cp-step" data-step="2" role="tab"><svg width="16" height="16"><use href="#i-num-2"/></svg> Review changes</button>
+    <button class="cp-step" data-step="3" role="tab"><svg width="16" height="16"><use href="#i-num-3"/></svg> Merge</button>
+  </div>
+
+  <div class="cp-main">
+    <!-- Step 1: Select assets -->
+    <div class="cp-pane" id="cp-pane-1">
+      <div class="cp-card cp-card--form">
+        <div class="field">
+          <label class="field__label" for="cp-desc">Pull description <span class="req">*</span></label>
+          <input class="field__input" id="cp-desc" type="text" value="Template sync" />
+        </div>
+        <div class="field">
+          <span class="field__label">Source environment <span class="req">*</span></span>
+          <div class="cp-select" id="cp-env">
+            <button class="cp-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="cp-select__value is-placeholder">Select</span>
+              <svg width="14" height="14"><use href="#i-caret-down"/></svg>
+            </button>
+            <div class="menu cp-select__menu" role="listbox">
+              <button class="vh-revert-option" role="option">Celigo - Priyanka: Sandbox</button>
+              <button class="vh-revert-option" role="option">Celigo - QA: Staging</button>
+              <button class="vh-revert-option" role="option">Celigo - Production</button>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <span class="field__label">Source integration <span class="req">*</span></span>
+          <div class="cp-select" id="cp-int">
+            <button class="cp-select__trigger" aria-haspopup="listbox" aria-expanded="false">
+              <span class="cp-select__value is-placeholder">Select</span>
+              <svg width="14" height="14"><use href="#i-caret-down"/></svg>
+            </button>
+            <div class="menu cp-select__menu" role="listbox">
+              <button class="vh-revert-option" role="option">Nishant</button>
+              <button class="vh-revert-option" role="option">Salesforce Integration</button>
+              <button class="vh-revert-option" role="option">NetSuite Integration</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="cp-card cp-card--assets">
+        <div class="cp-card__header">
+          <span class="cp-card__title">Assets <svg width="16" height="16" class="cp-help"><use href="#i-question"/></svg></span>
+          <label class="cp-selectall" id="cp-selectall-wrap" hidden>
+            <span class="cbx" id="cp-selectall" data-state="unchecked" role="checkbox" aria-checked="false" tabindex="0"></span>
+            Select all
+          </label>
+        </div>
+        <div class="cp-assets-empty" id="cp-assets-empty">
+          <svg width="32" height="32"><use href="#i-search"/></svg>
+          <p>Choose the source environment and integration to view and select the assets you want to pull.</p>
+        </div>
+        <div class="cp-assets-list" id="cp-assets-list" hidden><!-- groups injected --></div>
+      </div>
+    </div>
+
+    <!-- Steps 2 & 3: Review changes / Merge -->
+    <div class="cp-pane" id="cp-pane-review" hidden>
+      <aside class="vh-resources">
+        <div class="vh-resources__header">
+          <span class="vh-resources__title">Resources</span>
+          <button class="icon-btn icon-btn--xs icon-btn--secondary" aria-label="Collapse resources">
+            <svg width="16" height="16"><use href="#i-sidebar-collapse"/></svg>
+          </button>
+        </div>
+        <div class="vh-tree" id="cp-tree"><!-- tree injected --></div>
+      </aside>
+      <div class="vh-compare">
+        <div class="vh-compare__header">
+          <span class="vh-compare__heading">
+            <svg width="20" height="20"><use href="#i-flow-arrow"/></svg>
+            <span id="cp-compare-title">Send errors to slack</span>
+          </span>
+          <span class="tag tag--yellow">Used by : 4</span>
+          <button class="btn btn--sm btn--secondary" id="cp-resolve-btn" hidden>Resolve conflict</button>
+          <button class="icon-btn icon-btn--xs icon-btn--ghost" aria-label="Expand comparison">
+            <svg width="16" height="16"><use href="#i-arrows-out"/></svg>
+          </button>
+        </div>
+        <div class="vh-compare__body">
+          <div class="vh-code-card">
+            <div class="vh-code-card__title">Before pull</div>
+            <div class="vh-code" id="cp-code-before"></div>
+          </div>
+          <div class="vh-code-card">
+            <div class="vh-code-card__title">After pull</div>
+            <div class="vh-code" id="cp-code-after"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="cp-footer">
+    <button class="btn btn--md btn--primary" id="cp-next">Next</button>
+    <button class="btn btn--md btn--ghost" id="cp-cancel">Cancel</button>
+  </footer>
+</div>
+
+<!-- Ignore fields drawer (over the Create pull modal) -->
+<div class="cp-layer-shroud" id="ignore-shroud"></div>
+<aside class="drawer drawer--ignore" id="ignore-drawer" role="dialog" aria-modal="true" aria-labelledby="ignore-title">
+  <header class="drawer__header">
+    <div class="drawer__header-row">
+      <h2 class="drawer__title" id="ignore-title">Ignore fields during pull</h2>
+      <div class="drawer__header-right">
+        <a class="drawer__guide-link" href="#" onclick="return false">
+          <svg width="16" height="16"><use href="#i-book-open"/></svg>
+          Ignore guide
+          <svg width="14" height="14"><use href="#i-arrow-out"/></svg>
+        </a>
+        <div class="drawer__header-divider"></div>
+        <button class="close-btn" id="ignore-close-x" aria-label="Close">
+          <svg width="16" height="16"><use href="#i-x"/></svg>
+        </button>
+      </div>
+    </div>
+  </header>
+  <div class="drawer__body">
+    <div class="field">
+      <span class="field__label">Select fields to be ignored during pull
+        <svg width="16" height="16" class="cp-help" style="display:inline-block;vertical-align:-3px"><use href="#i-question"/></svg>
+      </span>
+      <div class="ignore-combo" id="ignore-combo">
+        <div class="ignore-combo__input">
+          <input type="text" id="ignore-search" placeholder="Select or search fields" aria-label="Select or search fields" />
+          <button class="icon-btn icon-btn--xs icon-btn--ghost" id="ignore-combo-toggle" aria-label="Toggle field list" aria-expanded="true">
+            <svg width="14" height="14" class="ignore-combo__caret"><use href="#i-caret-down"/></svg>
+          </button>
+        </div>
+        <div class="ignore-combo__panel" id="ignore-panel">
+          <div class="ignore-tree" id="ignore-tree"><!-- field tree injected --></div>
+          <div class="ignore-combo__footer">
+            <button class="btn btn--sm btn--outline" id="ignore-done">Done</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <footer class="drawer__footer">
+    <button class="btn btn--sm btn--secondary" id="ignore-save">Save</button>
+    <button class="btn btn--sm btn--ghost" id="ignore-close">Close</button>
+  </footer>
+</aside>
+
+<!-- Resolve conflicts dialog (over the Create pull modal) -->
+<div class="cp-layer-shroud" id="rc-shroud"></div>
+<div class="cp-dialog" id="rc-dialog" role="dialog" aria-modal="true" aria-labelledby="rc-title">
+  <header class="cp-dialog__header">
+    <div>
+      <h2 class="cp-dialog__title" id="rc-title">Resolve conflicts</h2>
+      <p class="cp-dialog__subtitle">Choose which value to keep for each conflicting field.</p>
+    </div>
+    <button class="close-btn" id="rc-close-x" aria-label="Close">
+      <svg width="16" height="16"><use href="#i-x"/></svg>
+    </button>
+  </header>
+  <div class="cp-dialog__content" id="rc-content"><!-- conflict fields injected --></div>
+  <footer class="cp-dialog__footer">
+    <button class="btn btn--sm btn--ghost" id="rc-cancel">Cancel</button>
+    <button class="btn btn--sm btn--primary" id="rc-save">Save</button>
+  </footer>
+</div>
 
 <!-- Toast -->
 <div class="toast" id="toast" role="status">
