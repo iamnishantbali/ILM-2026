@@ -1707,6 +1707,19 @@ table.flows tbody td.center { text-align: center; }
   padding: 16px;
 }
 
+/* Dialog footer (FX _Dialog-footer: 68px, 20px sides, 12/16 vertical) */
+
+.cp-footer {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 68px;
+  padding: 12px 20px 16px;
+  background: var(--bg-surface-overlay);
+  border-top: 1px solid var(--border-surface-subtle);
+  flex-shrink: 0;
+}
+
 /* Custom selects */
 
 .cp-select { position: relative; }
