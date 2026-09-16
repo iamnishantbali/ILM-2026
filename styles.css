@@ -1544,13 +1544,15 @@ table.flows tbody td.center { text-align: center; }
 .cp-shroud.is-open,
 .cp-layer-shroud.is-open { opacity: 1; pointer-events: auto; }
 
+/* FX spec (Modal fullscreen, DS node 36494:20189): full-bleed sheet —
+   16px side margins, 32px top offset, flush to the bottom edge,
+   top corners rounded 8px only. */
 .cp-modal {
   position: fixed;
   top: 32px;
-  left: 50%;
-  transform: translate(-50%, 24px);
-  width: min(1480px, calc(100vw - 80px));
-  height: min(868px, calc(100vh - 32px));
+  left: 16px;
+  right: 16px;
+  bottom: 0;
   background: var(--bg-surface-subtle);
   border-radius: var(--radius-lg) var(--radius-lg) 0 0;
   box-shadow: var(--shadow-md);
@@ -1560,9 +1562,10 @@ table.flows tbody td.center { text-align: center; }
   z-index: 140;
   opacity: 0;
   pointer-events: none;
+  transform: translateY(24px);
   transition: opacity 0.2s ease, transform 0.25s ease;
 }
-.cp-modal.is-open { opacity: 1; pointer-events: auto; transform: translate(-50%, 0); }
+.cp-modal.is-open { opacity: 1; pointer-events: auto; transform: translateY(0); }
 
 .cp-header {
   display: flex;
