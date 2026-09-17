@@ -461,6 +461,11 @@
   function renderDetail() {
     const v = selectedVersion;
     if (!v) return;
+    // Snapshots capture state without changing anything, so they only
+    // offer "View details" — no "View resources changed" tab.
+    const isSnapshot = v.type === "Snapshot";
+    tabResources.hidden = isSnapshot;
+    if (isSnapshot && !paneResources.hidden) selectTab("details");
     document.getElementById("vh-detail-badge").textContent = v.type;
     document.getElementById("vh-detail-title").textContent = v.title;
     document.getElementById("vh-detail-desc").textContent =
@@ -1081,13 +1086,18 @@
   document.getElementById("ignore-combo-toggle").addEventListener("click", (e) => {
     const collapsed = ignoreCombo.classList.toggle("is-collapsed");
     e.currentTarget.setAttribute("aria-expanded", !collapsed);
+    if (collapsed) {
+      ignoreSearch.value = "";
+      updateIgnoreSummary();
+    }
   });
-  document.getElementById("ignore-done").addEventListener("click", () => {
-    ignoreCombo.classList.add("is-collapsed");
-    const n = igFlat.filter((f) => f.checked && !f.group).length;
-    ignoreSearch.value = n ? `${n} field${n === 1 ? "" : "s"} selected` : "";
+  ignoreSearch.addEventListener("focus", () => {
+    ignoreCombo.classList.remove("is-collapsed");
+    if (/^\d+ fields? selected$/.test(ignoreSearch.value.trim())) {
+      ignoreSearch.select();
+    }
   });
-  ignoreSearch.addEventListener("focus", () => ignoreCombo.classList.remove("is-collapsed"));
+  ignoreSearch.addEventListener("blur", () => setTimeout(updateIgnoreSummary, 150));
   ignoreSearch.addEventListener("input", renderIgnoreTree);
 
   function renderIgnoreTree() {
@@ -1115,22 +1125,106 @@
             if (other.path.startsWith(f.path + ".")) other.checked = f.checked;
           });
         }
+        updateIgnoreSummary();
         renderIgnoreTree();
       });
     });
   }
 
-  document.getElementById("ignore-save").addEventListener("click", () => {
-    const n = igFlat.filter((f) => f.checked && !f.group).length;
-    closeIgnoreDrawer();
+  function ignoredCount() {
+    return igFlat.filter((f) => f.checked && !f.group).length;
+  }
+
+  function updateIgnoreSummary() {
+    const v = ignoreSearch.value.trim();
+    // Only overwrite the input when it isn't holding a real search query
+    if (v === "" || /^\d+ fields? selected$/.test(v)) {
+      const n = ignoredCount();
+      ignoreSearch.value = n ? `${n} field${n === 1 ? "" : "s"} selected` : "";
+    }
+  }
+
+  function saveIgnoredFields() {
+    const n = ignoredCount();
     showToast(n ? `${n} field${n === 1 ? "" : "s"} will be ignored during pull` : "No ignored fields set");
+  }
+
+  document.getElementById("ignore-save").addEventListener("click", saveIgnoredFields);
+  document.getElementById("ignore-save-close").addEventListener("click", () => {
+    saveIgnoredFields();
+    closeIgnoreDrawer();
+  });
+
+  /* "Used by" popover (Figma node 321:31891) */
+
+  const usedByPopover = document.getElementById("usedby-popover");
+  const usedByRowsEl = document.getElementById("usedby-rows");
+
+  const usedByData = {
+    "Send errors to slack": [
+      { name: "export-SF leads for lookup cache", type: "Export" },
+      { name: "export-SF leads to FTP import", type: "Export" },
+      { name: "Flow-SF leads to gSheet", type: "Flow" },
+    ],
+  };
+  const usedByPool = [
+    { name: "export-SF leads for lookup cache", type: "Export" },
+    { name: "import-Netsuite order sync", type: "Import" },
+    { name: "Flow-SF leads to gSheet", type: "Flow" },
+    { name: "export-SF leads to FTP import", type: "Export" },
+  ];
+
+  function openUsedByPopover(trigger, resourceName, count) {
+    const rows = usedByData[resourceName] || usedByPool.slice(0, Math.min(count || 3, usedByPool.length));
+    usedByRowsEl.innerHTML = rows
+      .map((r) => `<div class="usedby-row"><span>${r.name}</span><span>${r.type}</span></div>`)
+      .join("");
+    const rect = trigger.getBoundingClientRect();
+    usedByPopover.classList.add("is-open");
+    const width = 415;
+    // Open to the LEFT of the tag, tail pointing right at it
+    const left = Math.max(16, rect.left - width - 12);
+    let top = rect.top + rect.height / 2 - 26; // tail (at 20px) aligns with the tag's middle
+    top = Math.max(16, Math.min(top, window.innerHeight - usedByPopover.offsetHeight - 16));
+    usedByPopover.style.left = `${left}px`;
+    usedByPopover.style.top = `${top}px`;
+  }
+
+  function closeUsedByPopover() {
+    usedByPopover.classList.remove("is-open");
+  }
+
+  document.getElementById("vh-usedby").addEventListener("click", (e) => {
+    e.stopPropagation();
+    openUsedByPopover(e.currentTarget, selectedResource, 4);
+  });
+  document.getElementById("cp-usedby").addEventListener("click", (e) => {
+    e.stopPropagation();
+    openUsedByPopover(e.currentTarget, cpSelectedResource.name, cpSelectedResource.usedBy);
+  });
+  document.getElementById("usedby-close").addEventListener("click", closeUsedByPopover);
+  usedByPopover.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("click", (e) => {
+    if (usedByPopover.classList.contains("is-open") && !e.target.closest(".usedby-trigger")) closeUsedByPopover();
+  });
+
+  /* Collapsible Resources sidebar (version panel + pull modal) */
+
+  document.querySelectorAll(".resources-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const aside = btn.closest(".vh-resources");
+      const collapsed = aside.classList.toggle("is-collapsed");
+      btn.setAttribute("aria-expanded", !collapsed);
+      btn.setAttribute("aria-label", collapsed ? "Expand resources" : "Collapse resources");
+    });
   });
 
   /* ---------- Escape handling (topmost layer wins) ---------- */
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (rcDialog.classList.contains("is-open")) closeResolveDialog();
+    if (usedByPopover.classList.contains("is-open")) closeUsedByPopover();
+    else if (rcDialog.classList.contains("is-open")) closeResolveDialog();
     else if (ignoreDrawer.classList.contains("is-open")) closeIgnoreDrawer();
     else if (cpModal.classList.contains("is-open")) closePullModal();
     else if (drawer.classList.contains("is-open")) closeDrawer();
