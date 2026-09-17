@@ -2039,12 +2039,12 @@ table.flows tbody td.center { text-align: center; }
 .usedby-popover::before {
   content: "";
   position: absolute;
-  top: -6px;
-  right: 28px;
+  top: 20px;
+  right: -6px;
   width: 10px;
   height: 10px;
   background: var(--bg-surface-overlay);
-  border-left: 1px solid var(--border-divider-subtle);
+  border-right: 1px solid var(--border-divider-subtle);
   border-top: 1px solid var(--border-divider-subtle);
   transform: rotate(45deg);
 }

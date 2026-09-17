@@ -1158,10 +1158,12 @@
     const rect = trigger.getBoundingClientRect();
     usedByPopover.classList.add("is-open");
     const width = 415;
-    let left = rect.right - width + 40; // tail sits near the tag's right edge
-    left = Math.max(16, Math.min(left, window.innerWidth - width - 16));
+    // Open to the LEFT of the tag, tail pointing right at it
+    const left = Math.max(16, rect.left - width - 12);
+    let top = rect.top + rect.height / 2 - 26; // tail (at 20px) aligns with the tag's middle
+    top = Math.max(16, Math.min(top, window.innerHeight - usedByPopover.offsetHeight - 16));
     usedByPopover.style.left = `${left}px`;
-    usedByPopover.style.top = `${rect.bottom + 10}px`;
+    usedByPopover.style.top = `${top}px`;
   }
 
   function closeUsedByPopover() {
