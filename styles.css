@@ -2003,8 +2003,11 @@ table.flows tbody td.center { text-align: center; }
 .vh-resources { transition: width 0.2s ease; }
 
 .vh-resources.is-collapsed {
-  width: 56px;
+  width: 28px;
   gap: 0;
+  padding: 0;
+  border: none;
+  background: transparent;
 }
 .vh-resources.is-collapsed .vh-resources__header {
   justify-content: center;
