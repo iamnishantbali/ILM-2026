@@ -1124,10 +1124,15 @@
     });
   }
 
-  document.getElementById("ignore-save").addEventListener("click", () => {
+  function saveIgnoredFields() {
     const n = igFlat.filter((f) => f.checked && !f.group).length;
-    closeIgnoreDrawer();
     showToast(n ? `${n} field${n === 1 ? "" : "s"} will be ignored during pull` : "No ignored fields set");
+  }
+
+  document.getElementById("ignore-save").addEventListener("click", saveIgnoredFields);
+  document.getElementById("ignore-save-close").addEventListener("click", () => {
+    saveIgnoredFields();
+    closeIgnoreDrawer();
   });
 
   /* "Used by" popover (Figma node 321:31891) */
