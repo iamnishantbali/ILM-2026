@@ -1086,11 +1086,10 @@
   document.getElementById("ignore-combo-toggle").addEventListener("click", (e) => {
     const collapsed = ignoreCombo.classList.toggle("is-collapsed");
     e.currentTarget.setAttribute("aria-expanded", !collapsed);
-  });
-  document.getElementById("ignore-done").addEventListener("click", () => {
-    ignoreCombo.classList.add("is-collapsed");
-    const n = igFlat.filter((f) => f.checked && !f.group).length;
-    ignoreSearch.value = n ? `${n} field${n === 1 ? "" : "s"} selected` : "";
+    if (collapsed) {
+      const n = igFlat.filter((f) => f.checked && !f.group).length;
+      ignoreSearch.value = n ? `${n} field${n === 1 ? "" : "s"} selected` : "";
+    }
   });
   ignoreSearch.addEventListener("focus", () => ignoreCombo.classList.remove("is-collapsed"));
   ignoreSearch.addEventListener("input", renderIgnoreTree);

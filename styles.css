@@ -1991,10 +1991,6 @@ table.flows tbody td.center { text-align: center; }
 .ig-node[data-depth="1"] { margin-left: 26px; }
 .ig-node[data-depth="2"] { margin-left: 52px; }
 
-.ignore-combo__footer {
-  padding: 12px 16px 16px;
-  border-top: 1px solid var(--border-surface-subtle);
-}
 
 .drawer__footer .btn--secondary { min-width: 72px; }
 
