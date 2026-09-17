@@ -1131,6 +1131,17 @@
     showToast(n ? `${n} field${n === 1 ? "" : "s"} will be ignored during pull` : "No ignored fields set");
   });
 
+  /* Collapsible Resources sidebar (version panel + pull modal) */
+
+  document.querySelectorAll(".resources-toggle").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const aside = btn.closest(".vh-resources");
+      const collapsed = aside.classList.toggle("is-collapsed");
+      btn.setAttribute("aria-expanded", !collapsed);
+      btn.setAttribute("aria-label", collapsed ? "Expand resources" : "Collapse resources");
+    });
+  });
+
   /* ---------- Escape handling (topmost layer wins) ---------- */
 
   document.addEventListener("keydown", (e) => {

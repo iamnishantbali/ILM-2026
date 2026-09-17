@@ -1997,3 +1997,19 @@ table.flows tbody td.center { text-align: center; }
 }
 
 .drawer__footer .btn--secondary { min-width: 72px; }
+
+/* Collapsible Resources sidebar (Version history panel + Create pull modal) */
+
+.vh-resources { transition: width 0.2s ease; }
+
+.vh-resources.is-collapsed {
+  width: 56px;
+  gap: 0;
+}
+.vh-resources.is-collapsed .vh-resources__header {
+  justify-content: center;
+  padding: 0;
+}
+.vh-resources.is-collapsed .vh-resources__title,
+.vh-resources.is-collapsed .vh-tree { display: none; }
+.vh-resources.is-collapsed .resources-toggle svg { transform: scaleX(-1); }
