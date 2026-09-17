@@ -461,6 +461,11 @@
   function renderDetail() {
     const v = selectedVersion;
     if (!v) return;
+    // Snapshots capture state without changing anything, so they only
+    // offer "View details" — no "View resources changed" tab.
+    const isSnapshot = v.type === "Snapshot";
+    tabResources.hidden = isSnapshot;
+    if (isSnapshot && !paneResources.hidden) selectTab("details");
     document.getElementById("vh-detail-badge").textContent = v.type;
     document.getElementById("vh-detail-title").textContent = v.title;
     document.getElementById("vh-detail-desc").textContent =
