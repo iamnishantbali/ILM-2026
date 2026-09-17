@@ -1087,11 +1087,17 @@
     const collapsed = ignoreCombo.classList.toggle("is-collapsed");
     e.currentTarget.setAttribute("aria-expanded", !collapsed);
     if (collapsed) {
-      const n = igFlat.filter((f) => f.checked && !f.group).length;
-      ignoreSearch.value = n ? `${n} field${n === 1 ? "" : "s"} selected` : "";
+      ignoreSearch.value = "";
+      updateIgnoreSummary();
     }
   });
-  ignoreSearch.addEventListener("focus", () => ignoreCombo.classList.remove("is-collapsed"));
+  ignoreSearch.addEventListener("focus", () => {
+    ignoreCombo.classList.remove("is-collapsed");
+    if (/^\d+ fields? selected$/.test(ignoreSearch.value.trim())) {
+      ignoreSearch.select();
+    }
+  });
+  ignoreSearch.addEventListener("blur", () => setTimeout(updateIgnoreSummary, 150));
   ignoreSearch.addEventListener("input", renderIgnoreTree);
 
   function renderIgnoreTree() {
@@ -1119,13 +1125,27 @@
             if (other.path.startsWith(f.path + ".")) other.checked = f.checked;
           });
         }
+        updateIgnoreSummary();
         renderIgnoreTree();
       });
     });
   }
 
+  function ignoredCount() {
+    return igFlat.filter((f) => f.checked && !f.group).length;
+  }
+
+  function updateIgnoreSummary() {
+    const v = ignoreSearch.value.trim();
+    // Only overwrite the input when it isn't holding a real search query
+    if (v === "" || /^\d+ fields? selected$/.test(v)) {
+      const n = ignoredCount();
+      ignoreSearch.value = n ? `${n} field${n === 1 ? "" : "s"} selected` : "";
+    }
+  }
+
   function saveIgnoredFields() {
-    const n = igFlat.filter((f) => f.checked && !f.group).length;
+    const n = ignoredCount();
     showToast(n ? `${n} field${n === 1 ? "" : "s"} will be ignored during pull` : "No ignored fields set");
   }
 
