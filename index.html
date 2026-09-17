@@ -415,7 +415,7 @@
               <svg width="20" height="20"><use href="#i-flow-arrow"/></svg>
               <span id="vh-compare-title">Send errors to slack</span>
             </span>
-            <span class="tag tag--yellow">Used by : 4</span>
+            <button class="tag tag--yellow usedby-trigger" id="vh-usedby" aria-haspopup="dialog">Used by : 4</button>
             <button class="icon-btn icon-btn--xs icon-btn--ghost" aria-label="Expand comparison">
               <svg width="16" height="16"><use href="#i-arrows-out"/></svg>
             </button>
@@ -537,7 +537,7 @@
             <svg width="20" height="20"><use href="#i-flow-arrow"/></svg>
             <span id="cp-compare-title">Send errors to slack</span>
           </span>
-          <span class="tag tag--yellow">Used by : 4</span>
+          <button class="tag tag--yellow usedby-trigger" id="cp-usedby" aria-haspopup="dialog">Used by : 4</button>
           <button class="btn btn--sm btn--secondary" id="cp-resolve-btn" hidden>Resolve conflict</button>
           <button class="icon-btn icon-btn--xs icon-btn--ghost" aria-label="Expand comparison">
             <svg width="16" height="16"><use href="#i-arrows-out"/></svg>
@@ -626,6 +626,20 @@
     <button class="btn btn--sm btn--ghost" id="rc-cancel">Cancel</button>
     <button class="btn btn--sm btn--primary" id="rc-save">Save</button>
   </footer>
+</div>
+
+<!-- Used by popover (Figma node 321:31891) -->
+<div class="usedby-popover" id="usedby-popover" role="dialog" aria-label="Used by">
+  <div class="usedby-popover__head">
+    <span class="usedby-popover__title">Used by</span>
+    <button class="close-btn" id="usedby-close" aria-label="Close">
+      <svg width="16" height="16"><use href="#i-x"/></svg>
+    </button>
+  </div>
+  <div class="usedby-popover__table">
+    <div class="usedby-row usedby-row--head"><span>Name</span><span>Type</span></div>
+    <div id="usedby-rows"><!-- rows injected --></div>
+  </div>
 </div>
 
 <!-- Toast -->

@@ -1131,6 +1131,57 @@
     showToast(n ? `${n} field${n === 1 ? "" : "s"} will be ignored during pull` : "No ignored fields set");
   });
 
+  /* "Used by" popover (Figma node 321:31891) */
+
+  const usedByPopover = document.getElementById("usedby-popover");
+  const usedByRowsEl = document.getElementById("usedby-rows");
+
+  const usedByData = {
+    "Send errors to slack": [
+      { name: "export-SF leads for lookup cache", type: "Export" },
+      { name: "export-SF leads to FTP import", type: "Export" },
+      { name: "Flow-SF leads to gSheet", type: "Flow" },
+    ],
+  };
+  const usedByPool = [
+    { name: "export-SF leads for lookup cache", type: "Export" },
+    { name: "import-Netsuite order sync", type: "Import" },
+    { name: "Flow-SF leads to gSheet", type: "Flow" },
+    { name: "export-SF leads to FTP import", type: "Export" },
+  ];
+
+  function openUsedByPopover(trigger, resourceName, count) {
+    const rows = usedByData[resourceName] || usedByPool.slice(0, Math.min(count || 3, usedByPool.length));
+    usedByRowsEl.innerHTML = rows
+      .map((r) => `<div class="usedby-row"><span>${r.name}</span><span>${r.type}</span></div>`)
+      .join("");
+    const rect = trigger.getBoundingClientRect();
+    usedByPopover.classList.add("is-open");
+    const width = 415;
+    let left = rect.right - width + 40; // tail sits near the tag's right edge
+    left = Math.max(16, Math.min(left, window.innerWidth - width - 16));
+    usedByPopover.style.left = `${left}px`;
+    usedByPopover.style.top = `${rect.bottom + 10}px`;
+  }
+
+  function closeUsedByPopover() {
+    usedByPopover.classList.remove("is-open");
+  }
+
+  document.getElementById("vh-usedby").addEventListener("click", (e) => {
+    e.stopPropagation();
+    openUsedByPopover(e.currentTarget, selectedResource, 4);
+  });
+  document.getElementById("cp-usedby").addEventListener("click", (e) => {
+    e.stopPropagation();
+    openUsedByPopover(e.currentTarget, cpSelectedResource.name, cpSelectedResource.usedBy);
+  });
+  document.getElementById("usedby-close").addEventListener("click", closeUsedByPopover);
+  usedByPopover.addEventListener("click", (e) => e.stopPropagation());
+  document.addEventListener("click", (e) => {
+    if (usedByPopover.classList.contains("is-open") && !e.target.closest(".usedby-trigger")) closeUsedByPopover();
+  });
+
   /* Collapsible Resources sidebar (version panel + pull modal) */
 
   document.querySelectorAll(".resources-toggle").forEach((btn) => {
@@ -1146,7 +1197,8 @@
 
   document.addEventListener("keydown", (e) => {
     if (e.key !== "Escape") return;
-    if (rcDialog.classList.contains("is-open")) closeResolveDialog();
+    if (usedByPopover.classList.contains("is-open")) closeUsedByPopover();
+    else if (rcDialog.classList.contains("is-open")) closeResolveDialog();
     else if (ignoreDrawer.classList.contains("is-open")) closeIgnoreDrawer();
     else if (cpModal.classList.contains("is-open")) closePullModal();
     else if (drawer.classList.contains("is-open")) closeDrawer();
