@@ -572,19 +572,16 @@
           </span>
           <button class="tag tag--yellow usedby-trigger" id="cp-usedby" aria-haspopup="dialog">Used by : 4</button>
           <button class="btn btn--sm btn--secondary" id="cp-resolve-btn" hidden>Resolve conflict</button>
+          <div class="seg-toggle" role="group" aria-label="Diff view mode">
+            <button class="seg-toggle__btn is-active" id="cp-diff-split" aria-pressed="true">Split</button>
+            <button class="seg-toggle__btn" id="cp-diff-unified" aria-pressed="false">Unified</button>
+          </div>
           <button class="icon-btn icon-btn--xs icon-btn--ghost" aria-label="Expand comparison">
             <svg width="16" height="16"><use href="#i-arrows-out"/></svg>
           </button>
         </div>
-        <div class="vh-compare__body">
-          <div class="vh-code-card">
-            <div class="vh-code-card__title">Before pull</div>
-            <div class="vh-code" id="cp-code-before"></div>
-          </div>
-          <div class="vh-code-card">
-            <div class="vh-code-card__title">After pull</div>
-            <div class="vh-code" id="cp-code-after"></div>
-          </div>
+        <div class="vh-compare__body vh-compare__body--diff">
+          <div class="diff-view" id="cp-diff"><!-- diff rendered by app.js --></div>
         </div>
       </div>
     </div>

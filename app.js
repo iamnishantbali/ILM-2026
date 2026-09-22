@@ -985,12 +985,123 @@
     });
   }
 
+  /* Diff reviewer: GitHub-style split / unified views.
+     Mock diff of the selected resource: ctx = unchanged, del = removed
+     (before pull), add = added (after pull). */
+  const cpDiff = [
+    { t: "ctx", s: "{" },
+    { t: "ctx", s: '  <k>"page_of_records"</k>: [' },
+    { t: "ctx", s: "   {" },
+    { t: "ctx", s: '     <k>"record"</k>: {' },
+    { t: "ctx", s: '        <k>"id"</k>: <s>"1"</s>,' },
+    { t: "ctx", s: '        <k>"name"</k>: <s>"Alice Johnson"</s>,' },
+    { t: "del", s: '        <k>"department"</k>: <s>"Engineering"</s>,' },
+    { t: "del", s: '        <k>"position"</k>: <s>"Software Engineer"</s>,' },
+    { t: "add", s: '        <k>"department"</k>: <s>"Platform Engineering"</s>,' },
+    { t: "add", s: '        <k>"position"</k>: <s>"Senior Software Engineer"</s>,' },
+    { t: "ctx", s: '        <k>"location"</k>: <s>"San Francisco"</s>,' },
+    { t: "ctx", s: '        <k>"hire_date"</k>: <s>"2020-02-12"</s>,' },
+    { t: "ctx", s: '        <k>"email"</k>: <s>"alice.johnson@example.com"</s>,' },
+    { t: "add", s: '        <k>"manager"</k>: <s>"Robert Chen"</s>,' },
+    { t: "add", s: '        <k>"time_zone"</k>: <s>"America/Los_Angeles"</s>,' },
+    { t: "del", s: '        <k>"status"</k>: <s>"Active"</s>,' },
+    { t: "add", s: '        <k>"status"</k>: <s>"On leave"</s>,' },
+    { t: "ctx", s: "      }" },
+    { t: "ctx", s: "   }" },
+    { t: "ctx", s: " ]" },
+    { t: "ctx", s: "}" },
+  ];
+
+  let cpDiffMode = "split";
+
+  function diffTok(s) {
+    return s.replace(/<k>/g, '<span class="tk-key">').replace(/<s>/g, '<span class="tk-str">').replace(/<\/[ks]>/g, "</span>");
+  }
+
+  function renderCpDiffUnified() {
+    let o = 0;
+    let n = 0;
+    return cpDiff
+      .map((op) => {
+        const cls = op.t === "add" ? " diff-line--add" : op.t === "del" ? " diff-line--del" : "";
+        const oldNum = op.t === "add" ? "" : ++o;
+        const newNum = op.t === "del" ? "" : ++n;
+        const sign = op.t === "add" ? "+" : op.t === "del" ? "-" : "";
+        return `<div class="diff-line${cls}">
+          <span class="diff-num">${oldNum}</span><span class="diff-num">${newNum}</span>
+          <span class="diff-sign">${sign}</span><pre class="diff-code">${diffTok(op.s)}</pre>
+        </div>`;
+      })
+      .join("");
+  }
+
+  function renderCpDiffSplit() {
+    // Pair removed/added runs side by side, GitHub-style.
+    const rows = [];
+    let o = 0;
+    let n = 0;
+    let i = 0;
+    while (i < cpDiff.length) {
+      if (cpDiff[i].t === "ctx") {
+        rows.push({ l: { num: ++o, s: cpDiff[i].s, t: "ctx" }, r: { num: ++n, s: cpDiff[i].s, t: "ctx" } });
+        i += 1;
+        continue;
+      }
+      const dels = [];
+      const adds = [];
+      while (i < cpDiff.length && cpDiff[i].t === "del") dels.push(cpDiff[i++]);
+      while (i < cpDiff.length && cpDiff[i].t === "add") adds.push(cpDiff[i++]);
+      for (let k = 0; k < Math.max(dels.length, adds.length); k += 1) {
+        rows.push({
+          l: dels[k] ? { num: ++o, s: dels[k].s, t: "del" } : null,
+          r: adds[k] ? { num: ++n, s: adds[k].s, t: "add" } : null,
+        });
+      }
+    }
+
+    const side = (cell, type) => {
+      if (!cell) {
+        return `<span class="diff-num diff-cell--empty"></span><span class="diff-sign diff-cell--empty"></span><pre class="diff-code diff-cell--empty"></pre>`;
+      }
+      const mod = cell.t === "ctx" ? "" : ` diff-cell--${cell.t}`;
+      const sign = cell.t === "del" ? "-" : cell.t === "add" ? "+" : "";
+      return `<span class="diff-num${mod}">${cell.num}</span><span class="diff-sign${mod}">${sign}</span><pre class="diff-code${mod}">${diffTok(cell.s)}</pre>`;
+    };
+
+    const head = `<div class="diff-head"><div class="diff-head__cell">Before pull</div><div class="diff-head__cell">After pull</div></div>`;
+    const body = rows
+      .map((row) => {
+        const right = side(row.r, "add").replace('class="diff-num', 'class="diff-num diff-cell-left-border');
+        return `<div class="diff-line diff-line--split">${side(row.l, "del")}${right}</div>`;
+      })
+      .join("");
+    return head + body;
+  }
+
+  function renderCpDiff() {
+    document.getElementById("cp-diff").innerHTML = cpDiffMode === "split" ? renderCpDiffSplit() : renderCpDiffUnified();
+  }
+
+  const cpDiffSplitBtn = document.getElementById("cp-diff-split");
+  const cpDiffUnifiedBtn = document.getElementById("cp-diff-unified");
+
+  function setCpDiffMode(mode) {
+    cpDiffMode = mode;
+    cpDiffSplitBtn.classList.toggle("is-active", mode === "split");
+    cpDiffSplitBtn.setAttribute("aria-pressed", mode === "split" ? "true" : "false");
+    cpDiffUnifiedBtn.classList.toggle("is-active", mode === "unified");
+    cpDiffUnifiedBtn.setAttribute("aria-pressed", mode === "unified" ? "true" : "false");
+    renderCpDiff();
+  }
+
+  cpDiffSplitBtn.addEventListener("click", () => setCpDiffMode("split"));
+  cpDiffUnifiedBtn.addEventListener("click", () => setCpDiffMode("unified"));
+
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
     document.querySelector("#cp-pane-review .tag--yellow").textContent = `Used by : ${cpSelectedResource.usedBy}`;
     cpResolveBtn.hidden = !(cpStep === 3 && resourceHasOpenConflict(cpSelectedResource));
-    renderCode("cp-code-before", codeBefore);
-    renderCode("cp-code-after", codeAfter);
+    renderCpDiff();
   }
 
   /* Resolve conflicts dialog (step 3) */
