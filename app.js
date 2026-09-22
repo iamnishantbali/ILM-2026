@@ -771,7 +771,15 @@
 
   function setCpStep(step) {
     cpStep = step;
-    cpSteps.forEach((el) => el.classList.toggle("is-active", Number(el.dataset.step) === step));
+    cpSteps.forEach((el) => {
+      const n = Number(el.dataset.step);
+      el.classList.toggle("is-current", n === step);
+      el.classList.toggle("is-complete", n < step);
+      el.setAttribute("aria-selected", n === step ? "true" : "false");
+    });
+    document.querySelectorAll(".cp-step-line").forEach((line) => {
+      line.classList.toggle("is-complete", Number(line.dataset.line) < step);
+    });
     cpPane1.hidden = step !== 1;
     cpPaneReview.hidden = step === 1;
     if (step !== 1) {

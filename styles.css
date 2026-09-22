@@ -1589,37 +1589,89 @@ table.flows tbody td.center { text-align: center; }
 .cp-stepper {
   display: flex;
   align-items: center;
-  padding: 3px;
-  background: var(--bg-surface-elevated);
-  border-top: 1px solid var(--border-divider-subtle);
-  border-bottom: 1px solid var(--border-divider-subtle);
-  gap: 3px;
+  gap: 16px;
+  padding: 12px 20px;
+  background: var(--bg-surface-default);
+  border-top: 1px solid var(--border-surface-subtle);
+  border-bottom: 1px solid var(--border-surface-subtle);
 }
 
 .cp-step {
   display: flex;
-  flex: 1;
+  align-items: center;
+  gap: 10px;
+  padding: 0;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
+.cp-step__circle {
+  position: relative;
+  display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
+  flex: none;
+  width: 30px;
   height: 30px;
-  padding: 0 12px;
-  border-radius: var(--radius-sm);
+  border-radius: 50%;
+  background: var(--bg-surface-elevated);
+}
+
+.cp-step__num {
+  font-size: 13px;
+  line-height: 1;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+
+.cp-step__check { display: none; color: var(--icon-on-color); }
+
+.cp-step__label {
   font-size: 14px;
   line-height: 20px;
-  color: var(--text-default);
+  font-weight: 500;
+  color: var(--text-muted);
   white-space: nowrap;
 }
-.cp-step svg { color: var(--icon-default); }
-.cp-step.is-active {
+
+/* Current step: white circle with a revolving dashed ring */
+.cp-step.is-current .cp-step__circle {
   background: var(--bg-surface-default);
-  font-weight: 500;
-  box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
-.cp-step + .cp-step { border-left: 1px solid var(--border-divider-subtle); border-radius: 0 var(--radius-sm) var(--radius-sm) 0; }
-.cp-step.is-active + .cp-step,
-.cp-step + .cp-step.is-active { border-left-color: transparent; }
-.cp-step.is-active { border-radius: var(--radius-sm); }
+.cp-step.is-current .cp-step__circle::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px dashed var(--border-component-input-hover);
+  animation: cp-step-revolve 8s linear infinite;
+}
+.cp-step.is-current .cp-step__num { color: var(--text-default); }
+.cp-step.is-current .cp-step__label { color: var(--text-default); font-weight: 600; }
+
+/* Completed step: solid dark circle with a check */
+.cp-step.is-complete .cp-step__circle { background: var(--bg-component-primary); }
+.cp-step.is-complete .cp-step__num { display: none; }
+.cp-step.is-complete .cp-step__check { display: block; }
+.cp-step.is-complete .cp-step__label { color: var(--text-default); }
+
+.cp-step-line {
+  flex: 1;
+  height: 2px;
+  border-radius: 999px;
+  background: var(--border-surface-subtle);
+}
+.cp-step-line.is-complete { background: var(--bg-component-primary); }
+
+@keyframes cp-step-revolve {
+  to { transform: rotate(360deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cp-step.is-current .cp-step__circle::before { animation: none; }
+}
+
 
 /* Main panes */
 

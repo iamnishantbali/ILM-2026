@@ -74,9 +74,6 @@
     <symbol id="i-trash" viewBox="0 0 16 16"><path d="M2.5 4h11M6.5 4V2.8a.8.8 0 0 1 .8-.8h1.4a.8.8 0 0 1 .8.8V4M4 4l.5 9a1 1 0 0 0 1 .9h5a1 1 0 0 0 1-.9L12 4M6.6 6.8v4.4M9.4 6.8v4.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-warning" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
-    <symbol id="i-num-1" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6.6 6.2 8.3 5v6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-num-2" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6.2 6.3c.2-.8.9-1.4 1.8-1.4 1 0 1.8.7 1.8 1.7 0 1.7-3.6 2.5-3.6 4.4h3.7" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="i-num-3" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6.3 5h3.4L7.8 7.4a1.9 1.9 0 1 1-1.6 3" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
@@ -477,9 +474,29 @@
   </header>
 
   <div class="cp-stepper" role="tablist" aria-label="Create pull steps">
-    <button class="cp-step is-active" data-step="1" role="tab"><svg width="16" height="16"><use href="#i-num-1"/></svg> Select assets</button>
-    <button class="cp-step" data-step="2" role="tab"><svg width="16" height="16"><use href="#i-num-2"/></svg> Review changes</button>
-    <button class="cp-step" data-step="3" role="tab"><svg width="16" height="16"><use href="#i-num-3"/></svg> Merge</button>
+    <button class="cp-step is-current" data-step="1" role="tab">
+      <span class="cp-step__circle" aria-hidden="true">
+        <span class="cp-step__num">1</span>
+        <svg class="cp-step__check" width="14" height="14"><use href="#i-check"/></svg>
+      </span>
+      <span class="cp-step__label">Select assets</span>
+    </button>
+    <span class="cp-step-line" data-line="1"></span>
+    <button class="cp-step" data-step="2" role="tab">
+      <span class="cp-step__circle" aria-hidden="true">
+        <span class="cp-step__num">2</span>
+        <svg class="cp-step__check" width="14" height="14"><use href="#i-check"/></svg>
+      </span>
+      <span class="cp-step__label">Review changes</span>
+    </button>
+    <span class="cp-step-line" data-line="2"></span>
+    <button class="cp-step" data-step="3" role="tab">
+      <span class="cp-step__circle" aria-hidden="true">
+        <span class="cp-step__num">3</span>
+        <svg class="cp-step__check" width="14" height="14"><use href="#i-check"/></svg>
+      </span>
+      <span class="cp-step__label">Merge</span>
+    </button>
   </div>
 
   <div class="cp-main">
