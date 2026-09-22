@@ -225,8 +225,8 @@
     if (hasVersions) {
       menuList.innerHTML = versions
         .map(
-          (v) => `
-        <button class="menu-item" role="menuitem">
+          (v, i) => `
+        <button class="menu-item" role="menuitem" data-version-index="${i}">
           <span class="menu-item__top">
             <span class="menu-item__title">${v.name}</span>
             <span class="menu-item__badge">${v.type}</span>
@@ -235,6 +235,16 @@
         </button>`
         )
         .join("");
+      // Clicking a version opens the Version history panel with it selected
+      menuList.querySelectorAll("[data-version-index]").forEach((el) => {
+        el.addEventListener("click", () => {
+          const v = versions[Number(el.dataset.versionIndex)];
+          const match = panelVersions.find((p) => p.title === v.name && p.ts === v.timestamp);
+          if (match) selectedVersion = match;
+          closeVersionMenu();
+          openPanel();
+        });
+      });
     }
   }
 
