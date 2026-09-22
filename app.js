@@ -260,6 +260,34 @@
     }
   });
 
+  /* ---------- More actions menu (page header) ---------- */
+
+  const moreBtn = document.getElementById("more-actions-btn");
+  const moreMenu = document.getElementById("more-actions-menu");
+
+  function closeMoreMenu() {
+    moreMenu.classList.remove("is-open");
+    moreBtn.setAttribute("aria-expanded", "false");
+  }
+
+  moreBtn.addEventListener("click", (e) => {
+    e.stopPropagation();
+    closeVersionMenu();
+    const open = moreMenu.classList.toggle("is-open");
+    moreBtn.setAttribute("aria-expanded", open);
+  });
+  document.addEventListener("click", (e) => {
+    if (moreMenu.classList.contains("is-open") && !moreMenu.contains(e.target)) closeMoreMenu();
+  });
+  document.getElementById("action-clone").addEventListener("click", () => {
+    closeMoreMenu();
+    showToast("Cloning \u201CSalesforce Integration\u201D\u2026");
+  });
+  document.getElementById("action-delete").addEventListener("click", () => {
+    closeMoreMenu();
+    showToast("Delete integration is not part of this prototype");
+  });
+
   /* ---------- Create snapshot drawer (screens 5 & 6) ---------- */
 
   const shroud = document.getElementById("shroud");
@@ -1230,6 +1258,7 @@
     else if (drawer.classList.contains("is-open")) closeDrawer();
     else if (filterMenu.classList.contains("is-open")) filterMenu.classList.remove("is-open");
     else if (revertMenu.classList.contains("is-open")) revertMenu.classList.remove("is-open");
+    else if (moreMenu.classList.contains("is-open")) closeMoreMenu();
     else if (panel.classList.contains("is-open")) closePanel();
     else closeVersionMenu();
   });

@@ -2086,3 +2086,28 @@ table.flows tbody td.center { text-align: center; }
 #usedby-rows .usedby-row:nth-child(odd) { background: var(--bg-surface-subtle); }
 #usedby-rows .usedby-row > span:first-child { color: var(--text-semantic-info); font-weight: 500; cursor: pointer; }
 #usedby-rows .usedby-row > span:first-child:hover { text-decoration: underline; }
+
+/* More actions menu (page header) */
+
+.actions-menu {
+  width: 224px;
+  padding: 6px 0;
+}
+
+.actions-menu__item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  padding: 10px 16px;
+  font-size: 14px;
+  line-height: 20px;
+  font-weight: 500;
+  text-align: left;
+}
+.actions-menu__item svg { color: var(--icon-default); }
+.actions-menu__item:hover { background: var(--bg-component-menu-item-selected); }
+
+.actions-menu__item--destructive { color: var(--text-link-error); }
+.actions-menu__item--destructive svg { color: var(--icon-semantic-error); }
+.actions-menu__item--destructive:hover { background: #fef2f2; }

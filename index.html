@@ -69,6 +69,8 @@
     <symbol id="i-x-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="m5.8 5.8 4.4 4.4m0-4.4-4.4 4.4" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
     <symbol id="i-warning-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
     <symbol id="i-sidebar-collapse" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.1"/><path d="m10.8 6.2-1.8 1.8 1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- Phosphor "trash" -->
+    <symbol id="i-trash" viewBox="0 0 16 16"><path d="M2.5 4h11M6.5 4V2.8a.8.8 0 0 1 .8-.8h1.4a.8.8 0 0 1 .8.8V4M4 4l.5 9a1 1 0 0 0 1 .9h5a1 1 0 0 0 1-.9L12 4M6.6 6.8v4.4M9.4 6.8v4.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-warning" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
     <symbol id="i-num-1" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6.2" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6.6 6.2 8.3 5v6" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
@@ -154,7 +156,19 @@
               Version history
               <svg class="caret" width="14" height="14"><use href="#i-caret-down"/></svg>
             </button>
-            <button class="icon-btn icon-btn--sm icon-btn--secondary" aria-label="More actions"><svg width="16" height="16"><use href="#i-dots-three"/></svg></button>
+            <button class="icon-btn icon-btn--sm icon-btn--secondary" id="more-actions-btn" aria-label="More actions" aria-haspopup="menu" aria-expanded="false"><svg width="16" height="16"><use href="#i-dots-three"/></svg></button>
+
+            <!-- More actions menu -->
+            <div class="menu actions-menu" id="more-actions-menu" role="menu" aria-label="More actions">
+              <button class="actions-menu__item" role="menuitem" id="action-clone">
+                <svg width="16" height="16"><use href="#i-copy"/></svg>
+                Clone integration
+              </button>
+              <button class="actions-menu__item actions-menu__item--destructive" role="menuitem" id="action-delete">
+                <svg width="16" height="16"><use href="#i-trash"/></svg>
+                Delete integration
+              </button>
+            </div>
 
             <!-- Version history dropdown (screens 3 & 4) -->
             <div class="menu" id="version-menu" role="menu" aria-label="Version history">
