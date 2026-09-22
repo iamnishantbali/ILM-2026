@@ -428,16 +428,13 @@
               <span id="vh-compare-title">Send errors to slack</span>
             </span>
             <button class="tag tag--yellow usedby-trigger" id="vh-usedby" aria-haspopup="dialog">Used by : 4</button>
-                      </div>
-          <div class="vh-compare__body">
-            <div class="vh-code-card">
-              <div class="vh-code-card__title">Before pull</div>
-              <div class="vh-code" id="vh-code-before"></div>
+            <div class="seg-toggle" role="group" aria-label="Diff view mode">
+              <button class="seg-toggle__btn is-active" id="vh-diff-split" aria-pressed="true">Split</button>
+              <button class="seg-toggle__btn" id="vh-diff-unified" aria-pressed="false">Unified</button>
             </div>
-            <div class="vh-code-card">
-              <div class="vh-code-card__title">After pull</div>
-              <div class="vh-code" id="vh-code-after"></div>
-            </div>
+          </div>
+          <div class="vh-compare__body vh-compare__body--diff">
+            <div class="diff-view" id="vh-diff"><!-- diff rendered by app.js --></div>
           </div>
         </div>
       </div>

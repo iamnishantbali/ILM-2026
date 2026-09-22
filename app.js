@@ -79,45 +79,6 @@
 
   let selectedResource = "Send errors to slack";
 
-  const codeBefore = [
-    "{",
-    '  <k>"page_of_records"</k>: [',
-    "   {",
-    '     <k>"record"</k>: {',
-    '        <k>"id"</k>: <s>"1"</s>,',
-    '        <k>"name"</k>: <s>"Alice Johnson"</s>,',
-    '        <k>"department"</k>: <s>"Engineering"</s>,',
-    '        <k>"position"</k>: <s>"Software Engineer"</s>,',
-    '        <k>"location"</k>: <s>"San Francisco"</s>,',
-    '        <k>"hire_date"</k>: <s>"2020-02-12"</s>,',
-    '        <k>"email"</k>: <s>"alice.johnson@example.com"</s>,',
-    '        <k>"status"</k>: <s>"Active"</s>,',
-    "      }",
-    "   }",
-    " ]",
-    "}",
-  ];
-
-  const codeAfter = [
-    "{",
-    '  <k>"page_of_records"</k>: [',
-    "   {",
-    '     <k>"record"</k>: {',
-    '        <k>"id"</k>: <s>"1"</s>,',
-    '        <k>"name"</k>: <s>"Alice Johnson"</s>,',
-    '        <k>"department"</k>: <s>"Engineering"</s>,',
-    '        <k>"position"</k>: <s>"Senior Software Engineer"</s>,',
-    '        <k>"location"</k>: <s>"San Francisco"</s>,',
-    '        <k>"hire_date"</k>: <s>"2020-02-12"</s>,',
-    '        <k>"email"</k>: <s>"alice.johnson@example.com"</s>,',
-    '        <k>"manager"</k>: <s>"Robert Chen"</s>,',
-    '        <k>"status"</k>: <s>"Active"</s>,',
-    "      }",
-    "   }",
-    " ]",
-    "}",
-  ];
-
   /* ---------- Screen 1: integration cards ---------- */
 
   function cardTemplate(item) {
@@ -657,17 +618,7 @@
       });
     });
 
-    renderCode("vh-code-before", codeBefore);
-    renderCode("vh-code-after", codeAfter);
-  }
-
-  function renderCode(id, lines) {
-    const el = document.getElementById(id);
-    const numbers = lines.map((_, i) => i + 1).join("\n");
-    const code = lines
-      .map((l) => l.replace(/<k>/g, '<span class="tk-key">').replace(/<s>/g, '<span class="tk-str">').replace(/<\/[ks]>/g, "</span>"))
-      .join("\n");
-    el.innerHTML = `<div class="vh-code__lines">${numbers}</div><pre class="vh-code__text">${code}</pre>`;
+    vhDiffView.render();
   }
 
   /* ==========================================================
@@ -1012,13 +963,11 @@
     { t: "ctx", s: "}" },
   ];
 
-  let cpDiffMode = "split";
-
   function diffTok(s) {
     return s.replace(/<k>/g, '<span class="tk-key">').replace(/<s>/g, '<span class="tk-str">').replace(/<\/[ks]>/g, "</span>");
   }
 
-  function renderCpDiffUnified() {
+  function diffUnifiedHtml() {
     let o = 0;
     let n = 0;
     return cpDiff
@@ -1035,7 +984,7 @@
       .join("");
   }
 
-  function renderCpDiffSplit() {
+  function diffSplitHtml() {
     // Pair removed/added runs side by side, GitHub-style.
     const rows = [];
     let o = 0;
@@ -1078,30 +1027,40 @@
     return head + body;
   }
 
-  function renderCpDiff() {
-    document.getElementById("cp-diff").innerHTML = cpDiffMode === "split" ? renderCpDiffSplit() : renderCpDiffUnified();
+  // One diff view per surface (Create pull review pane, Version history
+  // resources tab); each keeps its own Split/Unified mode.
+  function createDiffView(containerId, splitBtnId, unifiedBtnId) {
+    const container = document.getElementById(containerId);
+    const splitBtn = document.getElementById(splitBtnId);
+    const unifiedBtn = document.getElementById(unifiedBtnId);
+    let mode = "split";
+
+    function render() {
+      container.innerHTML = mode === "split" ? diffSplitHtml() : diffUnifiedHtml();
+    }
+
+    function setMode(next) {
+      mode = next;
+      splitBtn.classList.toggle("is-active", mode === "split");
+      splitBtn.setAttribute("aria-pressed", mode === "split" ? "true" : "false");
+      unifiedBtn.classList.toggle("is-active", mode === "unified");
+      unifiedBtn.setAttribute("aria-pressed", mode === "unified" ? "true" : "false");
+      render();
+    }
+
+    splitBtn.addEventListener("click", () => setMode("split"));
+    unifiedBtn.addEventListener("click", () => setMode("unified"));
+    return { render };
   }
 
-  const cpDiffSplitBtn = document.getElementById("cp-diff-split");
-  const cpDiffUnifiedBtn = document.getElementById("cp-diff-unified");
-
-  function setCpDiffMode(mode) {
-    cpDiffMode = mode;
-    cpDiffSplitBtn.classList.toggle("is-active", mode === "split");
-    cpDiffSplitBtn.setAttribute("aria-pressed", mode === "split" ? "true" : "false");
-    cpDiffUnifiedBtn.classList.toggle("is-active", mode === "unified");
-    cpDiffUnifiedBtn.setAttribute("aria-pressed", mode === "unified" ? "true" : "false");
-    renderCpDiff();
-  }
-
-  cpDiffSplitBtn.addEventListener("click", () => setCpDiffMode("split"));
-  cpDiffUnifiedBtn.addEventListener("click", () => setCpDiffMode("unified"));
+  const cpDiffView = createDiffView("cp-diff", "cp-diff-split", "cp-diff-unified");
+  const vhDiffView = createDiffView("vh-diff", "vh-diff-split", "vh-diff-unified");
 
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
     document.querySelector("#cp-pane-review .tag--yellow").textContent = `Used by : ${cpSelectedResource.usedBy}`;
     cpResolveBtn.hidden = !(cpStep === 3 && resourceHasOpenConflict(cpSelectedResource));
-    renderCpDiff();
+    cpDiffView.render();
   }
 
   /* Resolve conflicts dialog (step 3) */
