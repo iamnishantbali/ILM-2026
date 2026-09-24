@@ -715,6 +715,8 @@
     cpModal.classList.remove("is-open");
     closeIgnoreDrawer();
     closeResolveDialog();
+    clearTimeout(mergeTimer);
+    cpNext.disabled = false;
   }
 
   document.getElementById("cp-close-x").addEventListener("click", closePullModal);
@@ -732,12 +734,15 @@
       line.classList.toggle("is-complete", Number(line.dataset.line) < step);
     });
     cpPane1.hidden = step !== 1;
-    cpPaneReview.hidden = step === 1;
-    if (step !== 1) {
+    cpPaneReview.hidden = step !== 2;
+    document.getElementById("cp-pane-merge").hidden = step !== 3;
+    document.getElementById("cp-ignore-fields").hidden = step === 3;
+    if (step === 2) {
       renderCpTree();
       renderCpCompare();
     }
-    cpNext.textContent = "Next";
+    if (step === 3) renderMergeSummary();
+    cpNext.textContent = step === 3 ? "Merge changes" : "Next";
   }
 
   cpSteps.forEach((el) => {
@@ -765,9 +770,79 @@
     } else if (cpStep === 2) {
       setCpStep(3);
     } else {
-      showToast("The final merge step will be added once its designs are ready");
+      startMerge();
     }
   });
+
+  /* Step 3: merge summary + merging state */
+
+  // Env option → the short name shown in the merge route
+  function shortEnvName(env) {
+    if (!env) return "";
+    const tail = env.split(":").pop().trim();
+    return tail || env;
+  }
+
+  function renderMergeSummary() {
+    document.getElementById("cp-merge-summary").hidden = false;
+    document.getElementById("cp-merge-progress").hidden = true;
+    document.getElementById("cp-merge-bar").style.width = "0%";
+
+    document.getElementById("cp-merge-desc").value = document.getElementById("cp-desc").value || "Template sync";
+    document.getElementById("cp-merge-env").value = cpState.env || "";
+    document.getElementById("cp-merge-int").value = cpState.integration || "";
+
+    let totalConflicts = 0;
+    let resolvedConflicts = 0;
+    pullResources.forEach((g) => {
+      (g.items || []).forEach((it) => {
+        if (typeof it === "object" && it.conflicts) {
+          totalConflicts += it.conflicts.length;
+          if (it.resolved) resolvedConflicts += it.conflicts.length;
+        }
+      });
+    });
+    const ignoredCount = igFlat.filter((f) => !f.group && f.checked).length;
+
+    const pad = (n) => String(n).padStart(2, "0");
+    const rows = [
+      ["i-cloud-up", "Updated resources", "21"],
+      ["i-plus", "New resources", pad(9)],
+      ["i-trash", "Deleted resources", pad(4)],
+      ["i-check-circle", "Conflicts resolved", `${resolvedConflicts} of ${totalConflicts}`],
+      ["i-skip-forward", "Ignored fields", pad(ignoredCount)],
+      ["i-link", "New connections", "3 configured"],
+    ];
+    document.getElementById("cp-merge-list").innerHTML = rows
+      .map(
+        ([icon, label, value]) => `<div class="included-row">
+          <span class="included-row__icon"><svg width="16" height="16"><use href="#${icon}"/></svg></span>
+          <span class="included-row__name">${label}</span>
+          <span class="included-row__count">${value}</span>
+        </div>`
+      )
+      .join("");
+  }
+
+  let mergeTimer = null;
+
+  function startMerge() {
+    document.getElementById("cp-merge-summary").hidden = true;
+    const progress = document.getElementById("cp-merge-progress");
+    progress.hidden = false;
+    document.getElementById("cp-merge-progress-desc").textContent =
+      `Pulling resources from ${shortEnvName(cpState.env)} · ${cpState.integration || ""} into Production · Nishant's Integration`;
+    cpNext.disabled = true;
+    const bar = document.getElementById("cp-merge-bar");
+    bar.style.width = "0%";
+    requestAnimationFrame(() => requestAnimationFrame(() => { bar.style.width = "100%"; }));
+    clearTimeout(mergeTimer);
+    mergeTimer = setTimeout(() => {
+      cpNext.disabled = false;
+      closePullModal();
+      showToast("Changes merged into Production · Nishant's Integration");
+    }, 2700);
+  }
 
   /* Step 1: selects */
 
@@ -1059,7 +1134,7 @@
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
     document.querySelector("#cp-pane-review .tag--yellow").textContent = `Used by : ${cpSelectedResource.usedBy}`;
-    cpResolveBtn.hidden = !(cpStep === 3 && resourceHasOpenConflict(cpSelectedResource));
+    cpResolveBtn.hidden = !(cpStep === 2 && resourceHasOpenConflict(cpSelectedResource));
     cpDiffView.render();
   }
 

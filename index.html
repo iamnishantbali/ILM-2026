@@ -70,6 +70,7 @@
     <symbol id="i-sidebar-collapse" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.1"/><path d="m10.8 6.2-1.8 1.8 1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <!-- Phosphor "trash" -->
     <symbol id="i-skip-forward" viewBox="0 0 16 16"><path d="M12.5 3v10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3.5 3.9c0-.5.5-.8.9-.5l6.3 4.1c.4.2.4.8 0 1L4.4 12.6c-.4.3-.9 0-.9-.5V3.9Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
+    <symbol id="i-git-pull" viewBox="0 0 16 16"><circle cx="4" cy="3.8" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 5.5v8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7.4 3.3h2.8a2 2 0 0 1 2 2v5.2M10.4 8.7l1.8 1.8 1.8-1.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-trash" viewBox="0 0 16 16"><path d="M2.5 4h11M6.5 4V2.8a.8.8 0 0 1 .8-.8h1.4a.8.8 0 0 1 .8.8V4M4 4l.5 9a1 1 0 0 0 1 .9h5a1 1 0 0 0 1-.9L12 4M6.6 6.8v4.4M9.4 6.8v4.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-warning" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
@@ -360,13 +361,13 @@
                 <label class="vh-filter-option"><input type="checkbox" data-filter="status" value="Failed" checked /> Failed</label>
               </div>
               <div class="vh-filter-group">
-                <p class="vh-filter-group__label">Revision type</p>
+                <p class="vh-filter-group__label">Type</p>
                 <label class="vh-filter-option"><input type="checkbox" data-filter="type" value="Snapshot" checked /> Snapshot</label>
                 <label class="vh-filter-option"><input type="checkbox" data-filter="type" value="Pull" checked /> Pull</label>
                 <label class="vh-filter-option"><input type="checkbox" data-filter="type" value="Revert" checked /> Revert</label>
               </div>
               <div class="vh-filter-group">
-                <p class="vh-filter-group__label">Username</p>
+                <p class="vh-filter-group__label">Created by</p>
                 <label class="vh-filter-option"><input type="checkbox" data-filter="by" value="Nishant Bali" checked /> Nishant Bali</label>
                 <label class="vh-filter-option"><input type="checkbox" data-filter="by" value="Priyanka Kaundal" checked /> Priyanka Kaundal</label>
                 <label class="vh-filter-option"><input type="checkbox" data-filter="by" value="System" checked /> System</label>
@@ -546,7 +547,7 @@
       </div>
     </div>
 
-    <!-- Steps 2 & 3: Review changes / Merge -->
+    <!-- Steps 2: Review changes -->
     <div class="cp-pane" id="cp-pane-review" hidden>
       <aside class="vh-resources">
         <div class="vh-resources__header">
@@ -564,14 +565,50 @@
             <span id="cp-compare-title">Send errors to slack</span>
           </span>
           <button class="tag tag--yellow usedby-trigger" id="cp-usedby" aria-haspopup="dialog">Used by : 4</button>
-          <button class="btn btn--sm btn--secondary" id="cp-resolve-btn" hidden>Resolve conflict</button>
           <div class="seg-toggle" role="group" aria-label="Diff view mode">
             <button class="seg-toggle__btn is-active" id="cp-diff-split" aria-pressed="true">Split</button>
             <button class="seg-toggle__btn" id="cp-diff-unified" aria-pressed="false">Unified</button>
           </div>
-                  </div>
+          <button class="btn btn--sm btn--secondary" id="cp-resolve-btn" hidden>Resolve conflict</button>
+        </div>
         <div class="vh-compare__body vh-compare__body--diff">
           <div class="diff-view" id="cp-diff"><!-- diff rendered by app.js --></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Step 3: Merge (summary + confirm) -->
+    <div class="cp-pane" id="cp-pane-merge" hidden>
+      <div class="cp-card cp-card--form">
+        <div class="field">
+          <label class="field__label" for="cp-merge-desc">Pull description</label>
+          <input class="field__input" id="cp-merge-desc" type="text" value="Template sync" readonly />
+        </div>
+        <div class="field">
+          <label class="field__label" for="cp-merge-env">Source environment</label>
+          <input class="field__input" id="cp-merge-env" type="text" value="" readonly />
+        </div>
+        <div class="field">
+          <label class="field__label" for="cp-merge-int">Source integration</label>
+          <input class="field__input" id="cp-merge-int" type="text" value="" readonly />
+        </div>
+      </div>
+
+      <div class="cp-card cp-card--merge">
+        <div class="cp-card__header">
+          <span class="cp-card__title">Merge summary</span>
+        </div>
+        <div class="cp-merge-body">
+          <div class="included-card" id="cp-merge-summary">
+            <div class="included-card__list" id="cp-merge-list"><!-- rows injected --></div>
+          </div>
+
+          <div class="merge-progress" id="cp-merge-progress" hidden>
+            <svg width="28" height="28" class="merge-progress__icon"><use href="#i-git-pull"/></svg>
+            <div class="merge-progress__title">Merging changes&hellip;</div>
+            <div class="merge-progress__desc" id="cp-merge-progress-desc">Pulling resources into Production · Nishant's Integration</div>
+            <div class="merge-progress__track"><div class="merge-progress__bar" id="cp-merge-bar"></div></div>
+          </div>
         </div>
       </div>
     </div>
