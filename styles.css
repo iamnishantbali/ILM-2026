@@ -1116,8 +1116,6 @@ table.flows tbody td.center { text-align: center; }
   line-height: 16px;
   font-weight: 500;
   color: var(--text-muted);
-  text-transform: uppercase;
-  letter-spacing: 0.02em;
 }
 
 .vh-filter-option {
