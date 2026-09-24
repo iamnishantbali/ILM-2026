@@ -733,6 +733,7 @@
     });
     cpPane1.hidden = step !== 1;
     cpPaneReview.hidden = step === 1;
+    document.getElementById("cp-ignore-fields").hidden = step === 3;
     if (step !== 1) {
       renderCpTree();
       renderCpCompare();
@@ -1059,7 +1060,7 @@
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
     document.querySelector("#cp-pane-review .tag--yellow").textContent = `Used by : ${cpSelectedResource.usedBy}`;
-    cpResolveBtn.hidden = !(cpStep === 3 && resourceHasOpenConflict(cpSelectedResource));
+    cpResolveBtn.hidden = !(cpStep === 2 && resourceHasOpenConflict(cpSelectedResource));
     cpDiffView.render();
   }
 
