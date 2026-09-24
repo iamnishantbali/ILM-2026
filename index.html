@@ -70,7 +70,6 @@
     <symbol id="i-sidebar-collapse" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.1"/><path d="m10.8 6.2-1.8 1.8 1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <!-- Phosphor "trash" -->
     <symbol id="i-skip-forward" viewBox="0 0 16 16"><path d="M12.5 3v10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3.5 3.9c0-.5.5-.8.9-.5l6.3 4.1c.4.2.4.8 0 1L4.4 12.6c-.4.3-.9 0-.9-.5V3.9Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
-    <symbol id="i-arrow-right" viewBox="0 0 16 16"><path d="M2.8 8h10.4M9 3.8 13.2 8 9 12.2" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-git-pull" viewBox="0 0 16 16"><circle cx="4" cy="3.8" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 5.5v8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7.4 3.3h2.8a2 2 0 0 1 2 2v5.2M10.4 8.7l1.8 1.8 1.8-1.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-trash" viewBox="0 0 16 16"><path d="M2.5 4h11M6.5 4V2.8a.8.8 0 0 1 .8-.8h1.4a.8.8 0 0 1 .8.8V4M4 4l.5 9a1 1 0 0 0 1 .9h5a1 1 0 0 0 1-.9L12 4M6.6 6.8v4.4M9.4 6.8v4.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
@@ -596,32 +595,20 @@
       </div>
 
       <div class="cp-card cp-card--merge">
-        <div class="merge-summary" id="cp-merge-summary">
-          <div class="merge-summary__header">
-            <svg width="16" height="16"><use href="#i-git-pull"/></svg>
-            <span class="merge-summary__title">Merge summary</span>
-          </div>
-          <div class="merge-route">
-            <div class="merge-route__col merge-route__col--src">
-              <span class="merge-route__label">Source</span>
-              <span class="merge-route__value" id="cp-merge-source">Sandbox · master template</span>
-            </div>
-            <span class="merge-route__arrow" aria-hidden="true">
-              <svg width="13" height="13"><use href="#i-arrow-right"/></svg>
-            </span>
-            <div class="merge-route__col">
-              <span class="merge-route__label">Current</span>
-              <span class="merge-route__value" id="cp-merge-current">Production · Nishant's Integration</span>
-            </div>
-          </div>
-          <div class="merge-summary__list" id="cp-merge-list"><!-- rows injected --></div>
+        <div class="cp-card__header">
+          <span class="cp-card__title">Merge summary</span>
         </div>
+        <div class="cp-merge-body">
+          <div class="included-card" id="cp-merge-summary">
+            <div class="included-card__list" id="cp-merge-list"><!-- rows injected --></div>
+          </div>
 
-        <div class="merge-progress" id="cp-merge-progress" hidden>
-          <svg width="28" height="28" class="merge-progress__icon"><use href="#i-git-pull"/></svg>
-          <div class="merge-progress__title">Merging changes&hellip;</div>
-          <div class="merge-progress__desc" id="cp-merge-progress-desc">Pulling resources into Production · Nishant's Integration</div>
-          <div class="merge-progress__track"><div class="merge-progress__bar" id="cp-merge-bar"></div></div>
+          <div class="merge-progress" id="cp-merge-progress" hidden>
+            <svg width="28" height="28" class="merge-progress__icon"><use href="#i-git-pull"/></svg>
+            <div class="merge-progress__title">Merging changes&hellip;</div>
+            <div class="merge-progress__desc" id="cp-merge-progress-desc">Pulling resources into Production · Nishant's Integration</div>
+            <div class="merge-progress__track"><div class="merge-progress__bar" id="cp-merge-bar"></div></div>
+          </div>
         </div>
       </div>
     </div>

@@ -791,7 +791,6 @@
     document.getElementById("cp-merge-desc").value = document.getElementById("cp-desc").value || "Template sync";
     document.getElementById("cp-merge-env").value = cpState.env || "";
     document.getElementById("cp-merge-int").value = cpState.integration || "";
-    document.getElementById("cp-merge-source").textContent = `${shortEnvName(cpState.env)} · ${cpState.integration || ""}`;
 
     let totalConflicts = 0;
     let resolvedConflicts = 0;
@@ -805,16 +804,23 @@
     });
     const ignoredCount = igFlat.filter((f) => !f.group && f.checked).length;
 
+    const pad = (n) => String(n).padStart(2, "0");
     const rows = [
-      ["Updated resources", "21"],
-      ["New resources", "9"],
-      ["Deleted resources", "4"],
-      ["Conflicts resolved", `${resolvedConflicts} of ${totalConflicts}`],
-      ["Ignored fields", String(ignoredCount)],
-      ["New connections", "3 configured"],
+      ["i-cloud-up", "Updated resources", "21"],
+      ["i-plus", "New resources", pad(9)],
+      ["i-trash", "Deleted resources", pad(4)],
+      ["i-check-circle", "Conflicts resolved", `${resolvedConflicts} of ${totalConflicts}`],
+      ["i-skip-forward", "Ignored fields", pad(ignoredCount)],
+      ["i-link", "New connections", "3 configured"],
     ];
     document.getElementById("cp-merge-list").innerHTML = rows
-      .map(([label, value]) => `<div class="merge-summary__row"><span>${label}</span><span class="merge-summary__val">${value}</span></div>`)
+      .map(
+        ([icon, label, value]) => `<div class="included-row">
+          <span class="included-row__icon"><svg width="16" height="16"><use href="#${icon}"/></svg></span>
+          <span class="included-row__name">${label}</span>
+          <span class="included-row__count">${value}</span>
+        </div>`
+      )
       .join("");
   }
 

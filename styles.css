@@ -1818,89 +1818,14 @@ table.flows tbody td.center { text-align: center; }
   pointer-events: none;
 }
 
-.cp-card--merge { padding: 16px; }
-
-.merge-summary {
+.cp-merge-body {
   display: flex;
   flex-direction: column;
-  border: 1px solid var(--border-surface-subtle);
-  border-radius: var(--radius-md);
-  overflow: hidden;
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 16px;
 }
-
-.merge-summary__header {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 14px 16px;
-  border-bottom: 1px solid var(--border-surface-subtle);
-  color: var(--icon-default);
-}
-
-.merge-summary__title {
-  font-size: 13px;
-  line-height: 16px;
-  font-weight: 600;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-}
-
-.merge-route {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 14px;
-  padding: 14px 16px 16px;
-  border-bottom: 1px solid var(--border-surface-subtle);
-}
-
-.merge-route__col { display: flex; flex-direction: column; gap: 2px; min-width: 0; }
-.merge-route__col--src { align-items: flex-end; text-align: right; }
-
-.merge-route__label {
-  font-size: 12px;
-  line-height: 16px;
-  font-weight: 500;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.merge-route__value {
-  font-size: 15px;
-  line-height: 22px;
-  color: var(--text-default);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.merge-route__arrow {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex: none;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  background: var(--bg-component-primary);
-  color: var(--icon-on-color);
-}
-
-.merge-summary__list { display: flex; flex-direction: column; }
-
-.merge-summary__row {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
-  padding: 11px 16px;
-  font-size: 14px;
-  line-height: 20px;
-  color: var(--text-muted);
-}
-.merge-summary__row + .merge-summary__row { border-top: 1px solid var(--border-surface-subtle); }
-.merge-summary__val { color: var(--text-default); font-weight: 500; }
 
 /* Merging intermediate state */
 
