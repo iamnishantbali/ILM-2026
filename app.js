@@ -635,6 +635,7 @@
   const cpPane1 = document.getElementById("cp-pane-1");
   const cpPaneReview = document.getElementById("cp-pane-review");
   const cpNext = document.getElementById("cp-next");
+  const cpNextWrap = document.getElementById("cp-next-wrap");
   const cpAssetsEmpty = document.getElementById("cp-assets-empty");
   const cpAssetsList = document.getElementById("cp-assets-list");
   const cpSelectAllWrap = document.getElementById("cp-selectall-wrap");
@@ -743,13 +744,32 @@
     }
     if (step === 3) renderMergeSummary();
     cpNext.textContent = step === 3 ? "Merge changes" : "Next";
+    updateCpNextState();
   }
+
+  function updateCpNextState() {
+    const blocked = cpStep === 2 && hasUnresolvedConflicts();
+    cpNext.disabled = blocked;
+    cpNextWrap.title = blocked ? "Resolve all conflicts before continuing" : "";
+  }
+
+  // The disabled Next button ignores pointer events, so a click on it is
+  // actually received by this wrapper — surface the same reason as a
+  // toast, since a disabled button never gets to show its hover title
+  // from a click alone.
+  cpNextWrap.addEventListener("click", () => {
+    if (cpNext.disabled) showToast(cpNextWrap.title || "Resolve all conflicts before continuing");
+  });
 
   cpSteps.forEach((el) => {
     el.addEventListener("click", () => {
       const target = Number(el.dataset.step);
       if (target > 1 && !sourceChosen()) {
         showToast("Choose a source environment and integration first");
+        return;
+      }
+      if (target > 2 && hasUnresolvedConflicts()) {
+        showToast("Resolve all conflicts before continuing");
         return;
       }
       setCpStep(target);
@@ -768,6 +788,10 @@
       }
       setCpStep(2);
     } else if (cpStep === 2) {
+      if (hasUnresolvedConflicts()) {
+        showToast("Resolve all conflicts before continuing");
+        return;
+      }
       setCpStep(3);
     } else {
       startMerge();
@@ -970,6 +994,10 @@
     return Boolean(it.conflicts && !it.resolved);
   }
 
+  function hasUnresolvedConflicts() {
+    return pullResources.some((g) => g.items.some((it) => resourceHasOpenConflict(it)));
+  }
+
   function renderCpTree() {
     const tree = document.getElementById("cp-tree");
     tree.innerHTML = pullResources
@@ -1136,6 +1164,7 @@
     document.querySelector("#cp-pane-review .tag--yellow").textContent = `Used by : ${cpSelectedResource.usedBy}`;
     cpResolveBtn.hidden = !(cpStep === 2 && resourceHasOpenConflict(cpSelectedResource));
     cpDiffView.render();
+    updateCpNextState();
   }
 
   /* Resolve conflicts dialog (step 3) */
