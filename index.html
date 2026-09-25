@@ -569,7 +569,7 @@
             <button class="seg-toggle__btn is-active" id="cp-diff-split" aria-pressed="true">Split</button>
             <button class="seg-toggle__btn" id="cp-diff-unified" aria-pressed="false">Unified</button>
           </div>
-          <button class="btn btn--sm btn--secondary" id="cp-resolve-btn" hidden>Resolve conflict</button>
+          <button class="btn btn--sm btn--primary" id="cp-resolve-btn" hidden>Resolve conflict</button>
         </div>
         <div class="vh-compare__body vh-compare__body--diff">
           <div class="diff-view" id="cp-diff"><!-- diff rendered by app.js --></div>
@@ -615,7 +615,9 @@
   </div>
 
   <footer class="cp-footer">
-    <button class="btn btn--md btn--primary" id="cp-next">Next</button>
+    <span class="cp-next-wrap" id="cp-next-wrap">
+      <button class="btn btn--md btn--primary" id="cp-next">Next</button>
+    </span>
     <button class="btn btn--md btn--ghost" id="cp-cancel">Cancel</button>
   </footer>
 </div>

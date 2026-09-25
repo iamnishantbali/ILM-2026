@@ -238,6 +238,18 @@ svg { display: block; flex-shrink: 0; }
 }
 .btn--primary:hover { background: #27272a; }
 
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  pointer-events: none;
+}
+.btn--primary:disabled:hover { background: var(--bg-component-primary); }
+
+/* Wraps the Next button so a native title tooltip still shows on hover
+   while the button itself is disabled (disabled elements ignore pointer
+   events, so the hover target is this wrapper instead). */
+.cp-next-wrap { display: inline-flex; }
+
 .btn--secondary {
   background: var(--bg-surface-subtle);
   color: var(--text-default);
