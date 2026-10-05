@@ -1008,6 +1008,7 @@
           <svg width="16" height="16"><use href="#${g.icon}"/></svg>
           <span class="tree-group__label">${g.group}</span>
           ${g.count ? `<span class="number-badge">${g.count}</span>` : ""}
+          ${g.items.some(resourceHasOpenConflict) ? `<svg class="tree-item__warn" width="16" height="16"><use href="#i-warning"/></svg>` : ""}
         </button>`;
         const items = g.expanded
           ? g.items

@@ -2075,6 +2075,7 @@ table.flows tbody td.center { text-align: center; }
 /* Review/Merge extras */
 
 .tree-item__warn,
+.tree-group .tree-item__warn,
 .cp-group .warn-icon { color: #ca8a04; }
 
 .tree-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
