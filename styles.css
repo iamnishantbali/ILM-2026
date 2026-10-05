@@ -1220,6 +1220,19 @@ table.flows tbody td.center { text-align: center; }
 }
 .badge-outline--green svg { color: #047857; }
 
+/* FX Badge — Size=sm, Variant=Soft, Color=Yellow (bg/semantic/warning-muted,
+   text/semantic/warning, icon/semantic/warning, radius-rounded) */
+.badge-soft--yellow {
+  background: #fefce8;
+  border-color: transparent;
+  color: #a16207;
+  height: 20px;
+  font-size: 12px;
+  line-height: 16px;
+  padding: 0 8px;
+}
+.badge-outline.badge-soft--yellow svg { color: #a16207; }
+
 .vh-item__title {
   font-size: 16px;
   line-height: 24px;
