@@ -835,7 +835,7 @@
       ["i-plus", "New resources", pad(9)],
       ["i-trash", "Deleted resources", pad(4)],
       ["i-check-circle", "Conflicts resolved", `${resolvedConflicts} of ${totalConflicts}`],
-      ["i-skip-forward", "Ignored fields", pad(ignoredCount)],
+      ["i-minus-circle", "Ignored fields", pad(ignoredCount)],
       ["i-link", "New connections", "3 configured"],
     ];
     document.getElementById("cp-merge-list").innerHTML = rows
