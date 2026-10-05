@@ -865,7 +865,7 @@
       cpNext.disabled = false;
       closePullModal();
       showToast("Changes merged into Production · Nishant's Integration");
-    }, 2700);
+    }, 3800);
   }
 
   /* Step 1: selects */
