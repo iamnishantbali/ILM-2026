@@ -670,7 +670,7 @@
       group: "Flows", icon: "i-flow-arrow", count: 4, expanded: true,
       items: [
         {
-          name: "Send errors to slack", usedBy: 4,
+          name: "Send errors to slack", usedBy: 4, changeType: "update",
           conflicts: [
             { field: "schedule.cron", source: "“0 */5 ***” every 5 min", current: "“0 */15 ***” every 15 min", choice: "custom", custom: "" },
             { field: "retryPolicy.maxAttempts", source: "5", current: "3", choice: "source", custom: "" },
@@ -678,20 +678,20 @@
           resolved: false,
         },
         {
-          name: "Transfer valid JSON files to Planful", usedBy: 2,
+          name: "Transfer valid JSON files to Planful", usedBy: 2, changeType: "update",
           conflicts: [
             { field: "export.pageSize", source: "100", current: "50", choice: "source", custom: "" },
           ],
           resolved: false,
         },
-        { name: "Salesforce to Netsuite to Slack", usedBy: 3 },
-        { name: "Data cleaner", usedBy: 1 },
+        { name: "Salesforce to Netsuite to Slack", usedBy: 3, changeType: "update" },
+        { name: "Data cleaner", usedBy: 1, changeType: "delete" },
       ],
     },
-    { group: "APIs", icon: "i-gear-api", count: 2, expanded: false, items: [{ name: "Orders lookup API", usedBy: 2 }] },
-    { group: "MCPs", icon: "i-server", count: null, expanded: false, items: [{ name: "Salesforce MCP server", usedBy: 1 }] },
-    { group: "Tools", icon: "i-hammer", count: null, expanded: false, items: [{ name: "JSON validator", usedBy: 1 }] },
-    { group: "Connections", icon: "i-link", count: null, expanded: false, items: [{ name: "Slack connection", usedBy: 4 }] },
+    { group: "APIs", icon: "i-gear-api", count: 2, expanded: false, items: [{ name: "Orders lookup API", usedBy: 2, changeType: "update" }] },
+    { group: "MCPs", icon: "i-server", count: null, expanded: false, items: [{ name: "Salesforce MCP server", usedBy: 1, changeType: "new" }] },
+    { group: "Tools", icon: "i-hammer", count: null, expanded: false, items: [{ name: "JSON validator", usedBy: 1, changeType: "update" }] },
+    { group: "Connections", icon: "i-link", count: null, expanded: false, items: [{ name: "Slack connection", usedBy: 4, changeType: "new" }] },
   ];
 
   let cpSelectedResource = pullResources[0].items[0];
@@ -1163,10 +1163,15 @@
   const cpDiffView = createDiffView("cp-diff", "cp-diff-split", "cp-diff-unified");
   const vhDiffView = createDiffView("vh-diff", "vh-diff-split", "vh-diff-unified");
 
+  const CP_CHANGE_TYPE_LABEL = { update: "Update", new: "New", delete: "Delete" };
+
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
-    document.querySelector("#cp-pane-review .tag--yellow").textContent = `Used by : ${cpSelectedResource.usedBy}`;
-    cpResolveBtn.hidden = !(cpStep === 2 && resourceHasOpenConflict(cpSelectedResource));
+    document.getElementById("cp-compare-type").textContent = CP_CHANGE_TYPE_LABEL[cpSelectedResource.changeType] || "Update";
+    const conflicted = resourceHasOpenConflict(cpSelectedResource);
+    document.getElementById("cp-compare-conflict").hidden = !conflicted;
+    document.getElementById("cp-usedby").textContent = `Used by : ${cpSelectedResource.usedBy}`;
+    cpResolveBtn.hidden = !(cpStep === 2 && conflicted);
     cpDiffView.render();
     updateCpNextState();
   }

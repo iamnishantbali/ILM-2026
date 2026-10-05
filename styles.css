@@ -1482,6 +1482,25 @@ table.flows tbody td.center { text-align: center; }
 }
 .vh-compare__heading svg { color: var(--icon-default); }
 
+/* Two-line heading in the Create pull review pane: resource name, then
+   its action type with an optional Conflict badge */
+.vh-compare__heading-text {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+.vh-compare__sub {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 12px;
+  line-height: 16px;
+  font-weight: 500;
+  color: var(--text-muted);
+}
+.tag--sm { padding: 1px 8px; }
+
 .tag {
   display: inline-flex;
   align-items: center;
