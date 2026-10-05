@@ -69,8 +69,13 @@
     <symbol id="i-warning-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
     <symbol id="i-sidebar-collapse" viewBox="0 0 16 16"><rect x="2" y="2.5" width="12" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.1"/><path d="M6 2.5v11" stroke="currentColor" stroke-width="1.1"/><path d="m10.8 6.2-1.8 1.8 1.8 1.8" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <!-- Phosphor "trash" -->
-    <symbol id="i-skip-forward" viewBox="0 0 16 16"><path d="M12.5 3v10" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M3.5 3.9c0-.5.5-.8.9-.5l6.3 4.1c.4.2.4.8 0 1L4.4 12.6c-.4.3-.9 0-.9-.5V3.9Z" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linejoin="round"/></symbol>
     <symbol id="i-git-pull" viewBox="0 0 16 16"><circle cx="4" cy="3.8" r="1.7" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M4 5.5v8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M7.4 3.3h2.8a2 2 0 0 1 2 2v5.2M10.4 8.7l1.8 1.8 1.8-1.8" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- Diff view toggle: Phosphor "square-split-horizontal" / "split-horizontal" -->
+    <symbol id="i-view-split" viewBox="0 0 16 16"><rect x="2.5" y="2.5" width="11" height="11" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 2.5v11" stroke="currentColor" stroke-width="1.2"/></symbol>
+    <symbol id="i-view-unified" viewBox="0 0 16 16"><path d="M8 2.5v11" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><path d="M5.6 8H1.8M3.3 6.5 1.8 8l1.5 1.5M10.4 8h3.8M12.7 6.5 14.2 8l-1.5 1.5" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <!-- Phosphor "list-magnifying-glass" (assets empty state) -->
+    <symbol id="i-list-magnifying-glass" viewBox="0 0 16 16"><path d="M2.5 4h11M2.5 8h4.5M2.5 12h3" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/><circle cx="10.5" cy="9.8" r="3" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="m12.7 12 1.8 1.8" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
+    <symbol id="i-minus-circle" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M5.2 8h5.6" stroke="currentColor" stroke-width="1.2" stroke-linecap="round"/></symbol>
     <symbol id="i-trash" viewBox="0 0 16 16"><path d="M2.5 4h11M6.5 4V2.8a.8.8 0 0 1 .8-.8h1.4a.8.8 0 0 1 .8.8V4M4 4l.5 9a1 1 0 0 0 1 .9h5a1 1 0 0 0 1-.9L12 4M6.6 6.8v4.4M9.4 6.8v4.4" fill="none" stroke="currentColor" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="i-minus" viewBox="0 0 16 16"><path d="M3.5 8h9" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></symbol>
     <symbol id="i-warning" viewBox="0 0 16 16"><circle cx="8" cy="8" r="6" fill="none" stroke="currentColor" stroke-width="1.2"/><path d="M8 4.8v3.6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><circle cx="8" cy="11" r=".8" fill="currentColor"/></symbol>
@@ -429,9 +434,10 @@
               <span id="vh-compare-title">Send errors to slack</span>
             </span>
             <button class="tag tag--yellow usedby-trigger" id="vh-usedby" aria-haspopup="dialog">Used by : 4</button>
-            <div class="seg-toggle" role="group" aria-label="Diff view mode">
-              <button class="seg-toggle__btn is-active" id="vh-diff-split" aria-pressed="true">Split</button>
-              <button class="seg-toggle__btn" id="vh-diff-unified" aria-pressed="false">Unified</button>
+            <span class="vh-compare__vdivider" aria-hidden="true"></span>
+            <div class="seg-toggle seg-toggle--icons" role="group" aria-label="Diff view mode">
+              <button class="seg-toggle__btn is-active" id="vh-diff-split" aria-pressed="true" aria-label="Split view" title="Split view"><svg width="16" height="16"><use href="#i-view-split"/></svg></button>
+              <button class="seg-toggle__btn" id="vh-diff-unified" aria-pressed="false" aria-label="Unified view" title="Unified view"><svg width="16" height="16"><use href="#i-view-unified"/></svg></button>
             </div>
           </div>
           <div class="vh-compare__body vh-compare__body--diff">
@@ -458,7 +464,7 @@
       <p class="cp-header__subtitle">Pull changes between directly related integrations to review and merge updates.</p>
     </div>
     <div class="cp-header__right">
-      <button class="btn btn--sm btn--outline" id="cp-ignore-fields"><svg width="16" height="16"><use href="#i-skip-forward"/></svg> Ignore fields</button>
+      <button class="btn btn--sm btn--outline" id="cp-ignore-fields"><svg width="16" height="16"><use href="#i-minus-circle"/></svg> Ignore fields</button>
       <div class="drawer__header-divider"></div>
       <button class="close-btn" id="cp-close-x" aria-label="Close">
         <svg width="16" height="16"><use href="#i-x"/></svg>
@@ -472,7 +478,7 @@
         <span class="cp-step__num">1</span>
         <svg class="cp-step__check" width="14" height="14"><use href="#i-check"/></svg>
       </span>
-      <span class="cp-step__label">Select assets</span>
+      <span class="cp-step__label">Select resources</span>
     </button>
     <span class="cp-step-line" data-line="1"></span>
     <button class="cp-step" data-step="2" role="tab">
@@ -532,15 +538,15 @@
 
       <div class="cp-card cp-card--assets">
         <div class="cp-card__header">
-          <span class="cp-card__title">Assets <svg width="16" height="16" class="cp-help"><use href="#i-question"/></svg></span>
+          <span class="cp-card__title">Resources <svg width="16" height="16" class="cp-help"><use href="#i-question"/></svg></span>
           <label class="cp-selectall" id="cp-selectall-wrap" hidden>
             <span class="cbx" id="cp-selectall" data-state="unchecked" role="checkbox" aria-checked="false" tabindex="0"></span>
             Select all
           </label>
         </div>
         <div class="cp-assets-empty" id="cp-assets-empty">
-          <svg width="32" height="32"><use href="#i-search"/></svg>
-          <p>Choose the source environment and integration to view and select the assets you want to pull.</p>
+          <svg width="32" height="32"><use href="#i-list-magnifying-glass"/></svg>
+          <p>Choose the source environment and integration to view and select the resources you want to pull.</p>
         </div>
         <div class="cp-assets-list" id="cp-assets-list" hidden><!-- groups injected --></div>
       </div>
@@ -561,14 +567,21 @@
         <div class="vh-compare__header">
           <span class="vh-compare__heading">
             <svg width="20" height="20"><use href="#i-flow-arrow"/></svg>
-            <span id="cp-compare-title">Send errors to slack</span>
+            <span class="vh-compare__heading-text">
+              <span id="cp-compare-title">Send errors to slack</span>
+              <span class="vh-compare__sub">
+                <span id="cp-compare-type">Update</span>
+                <span class="badge-outline badge-soft--yellow" id="cp-compare-conflict" hidden><svg width="12" height="12" aria-hidden="true"><use href="#i-warning"/></svg> Conflict</span>
+              </span>
+            </span>
           </span>
           <button class="tag tag--yellow usedby-trigger" id="cp-usedby" aria-haspopup="dialog">Used by : 4</button>
-          <div class="seg-toggle" role="group" aria-label="Diff view mode">
-            <button class="seg-toggle__btn is-active" id="cp-diff-split" aria-pressed="true">Split</button>
-            <button class="seg-toggle__btn" id="cp-diff-unified" aria-pressed="false">Unified</button>
-          </div>
           <button class="btn btn--sm btn--primary" id="cp-resolve-btn" hidden>Resolve conflict</button>
+          <span class="vh-compare__vdivider" aria-hidden="true"></span>
+          <div class="seg-toggle seg-toggle--icons" role="group" aria-label="Diff view mode">
+            <button class="seg-toggle__btn is-active" id="cp-diff-split" aria-pressed="true" aria-label="Split view" title="Split view"><svg width="16" height="16"><use href="#i-view-split"/></svg></button>
+            <button class="seg-toggle__btn" id="cp-diff-unified" aria-pressed="false" aria-label="Unified view" title="Unified view"><svg width="16" height="16"><use href="#i-view-unified"/></svg></button>
+          </div>
         </div>
         <div class="vh-compare__body vh-compare__body--diff">
           <div class="diff-view" id="cp-diff"><!-- diff rendered by app.js --></div>
