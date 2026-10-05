@@ -1605,6 +1605,33 @@ table.flows tbody td.center { text-align: center; }
   box-shadow: 0 1px 3px rgba(16, 24, 40, 0.1), 0 1px 2px -1px rgba(0, 0, 0, 0.1);
 }
 
+/* Icon-only variant (FX "Segmented control - Icon only"): bordered 36px
+   group, two 44px icon segments, white raised segment when active */
+.seg-toggle--icons {
+  height: 36px;
+  padding: 2px;
+  border: 1px solid var(--border-component-input);
+  border-radius: var(--radius-button);
+  background: var(--bg-surface-subtle);
+}
+.seg-toggle--icons .seg-toggle__btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 30px;
+  padding: 0;
+  color: var(--icon-muted);
+}
+.seg-toggle--icons .seg-toggle__btn.is-active { color: var(--icon-default); }
+
+.vh-compare__vdivider {
+  width: 1px;
+  height: 36px;
+  flex-shrink: 0;
+  background: var(--border-divider-subtle);
+}
+
 .vh-compare__body--diff { display: flex; min-width: 0; overflow: auto; }
 
 .diff-view {
