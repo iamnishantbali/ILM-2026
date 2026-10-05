@@ -1149,7 +1149,16 @@ table.flows tbody td.center { text-align: center; }
   flex: 1;
   min-height: 0;
   overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--bg-component-primary) transparent;
 }
+.vh-list::-webkit-scrollbar { width: 8px; }
+.vh-list::-webkit-scrollbar-track { background: transparent; }
+.vh-list::-webkit-scrollbar-thumb {
+  background: var(--bg-component-primary);
+  border-radius: 999px;
+}
+.vh-list::-webkit-scrollbar-thumb:hover { background: #000; }
 
 .vh-item {
   display: flex;
