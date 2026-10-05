@@ -756,9 +756,10 @@
   // The disabled Next button ignores pointer events, so a click on it is
   // actually received by this wrapper — surface the same reason as a
   // toast, since a disabled button never gets to show its hover title
-  // from a click alone.
-  cpNextWrap.addEventListener("click", () => {
-    if (cpNext.disabled) showToast(cpNextWrap.title || "Resolve all conflicts before continuing");
+  // from a click alone. A click that reached the (enabled) button itself
+  // bubbles here too, so only react when the wrapper was the real target.
+  cpNextWrap.addEventListener("click", (e) => {
+    if (e.target === cpNextWrap && cpNext.disabled) showToast(cpNextWrap.title || "Resolve all conflicts before continuing");
   });
 
   cpSteps.forEach((el) => {
