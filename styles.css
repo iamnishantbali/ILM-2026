@@ -1507,6 +1507,9 @@ table.flows tbody td.center { text-align: center; }
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Reserve the Conflict badge's 20px so the header height does not change
+     between resources with and without a conflict */
+  min-height: 20px;
   font-size: 12px;
   line-height: 16px;
   font-weight: 500;
