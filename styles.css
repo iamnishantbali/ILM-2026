@@ -1220,18 +1220,18 @@ table.flows tbody td.center { text-align: center; }
 }
 .badge-outline--green svg { color: #047857; }
 
-/* FX Badge — Size=sm, Variant=Soft, Color=Yellow (bg/semantic/warning-muted,
-   text/semantic/warning, icon/semantic/warning, radius-rounded) */
-.badge-soft--yellow {
-  background: #fefce8;
+/* FX Badge — Size=sm, Variant=Soft, Color=Red (bg/semantic/error-muted,
+   text/semantic/error, icon/semantic/error, radius-rounded) */
+.badge-soft--red {
+  background: #fef2f2;
   border-color: transparent;
-  color: #a16207;
+  color: var(--text-semantic-error);
   height: 20px;
   font-size: 12px;
   line-height: 16px;
   padding: 0 8px;
 }
-.badge-outline.badge-soft--yellow svg { color: #a16207; }
+.badge-outline.badge-soft--red svg { color: var(--icon-semantic-error); }
 
 .vh-item__title {
   font-size: 16px;
@@ -2138,7 +2138,7 @@ table.flows tbody td.center { text-align: center; }
 
 .tree-item__warn,
 .tree-group .tree-item__warn,
-.cp-group .warn-icon { color: #ca8a04; }
+.cp-group .warn-icon { color: var(--icon-semantic-error); }
 
 .tree-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
