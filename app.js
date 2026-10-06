@@ -1168,7 +1168,7 @@
 
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
-    document.getElementById("cp-compare-type").textContent = CP_CHANGE_TYPE_LABEL[cpSelectedResource.changeType] || "Update";
+    document.getElementById("cp-compare-type").textContent = `Action: ${CP_CHANGE_TYPE_LABEL[cpSelectedResource.changeType] || "Update"}`;
     const conflicted = resourceHasOpenConflict(cpSelectedResource);
     document.getElementById("cp-compare-conflict").hidden = !conflicted;
     document.getElementById("cp-usedby").textContent = `Used by : ${cpSelectedResource.usedBy}`;
