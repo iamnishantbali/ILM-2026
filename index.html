@@ -669,6 +669,23 @@
         </div>
       </div>
     </div>
+    <div class="field">
+      <span class="field__label">Add .gitignore</span>
+      <p class="field__hint">Choose which fields not to track by uploading a .gitignore file. <a class="field__hint-link" href="#" onclick="return false">Learn more.</a></p>
+      <input type="file" id="ignore-file" accept=".gitignore,text/plain" hidden />
+      <div class="file-drop" id="ignore-drop" tabindex="0" role="button" aria-label="Upload a .gitignore file">
+        <svg width="20" height="20" aria-hidden="true"><use href="#i-cloud-up"/></svg>
+        <span class="file-drop__text">Drag and drop a .gitignore file here, or <span class="file-drop__browse">browse</span></span>
+      </div>
+      <div class="file-chip" id="ignore-file-chip" hidden>
+        <svg width="16" height="16" aria-hidden="true"><use href="#i-note"/></svg>
+        <span class="file-chip__name" id="ignore-file-name">.gitignore</span>
+        <span class="file-chip__meta" id="ignore-file-meta"></span>
+        <button class="icon-btn icon-btn--xs icon-btn--ghost file-chip__remove" id="ignore-file-remove" aria-label="Remove file">
+          <svg width="14" height="14"><use href="#i-x"/></svg>
+        </button>
+      </div>
+    </div>
   </div>
   <footer class="drawer__footer">
     <button class="btn btn--sm btn--primary" id="ignore-save-close">Save &amp; close</button>
