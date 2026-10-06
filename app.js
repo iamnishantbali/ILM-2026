@@ -1173,6 +1173,7 @@
     document.getElementById("cp-compare-conflict").hidden = !conflicted;
     document.getElementById("cp-usedby").textContent = `Used by : ${cpSelectedResource.usedBy}`;
     cpResolveBtn.hidden = !(cpStep === 2 && conflicted);
+    document.getElementById("cp-resolve-divider").hidden = cpResolveBtn.hidden;
     cpDiffView.render();
     updateCpNextState();
   }
