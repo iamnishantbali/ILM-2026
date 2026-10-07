@@ -1648,11 +1648,14 @@ table.flows tbody td.center { text-align: center; }
   background: var(--border-divider-subtle);
 }
 
+/* The body is the single scroller for the diff (both axes). The view is
+   sized to its widest line so narrow viewports get one horizontal scrollbar
+   at the bottom instead of one per code cell. */
 .vh-compare__body--diff { display: flex; min-width: 0; overflow: auto; }
 
 .diff-view {
   flex: 1;
-  min-width: 0;
+  min-width: max-content;
   align-self: flex-start;
   font-family: "Fira Code", ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 12.5px;
@@ -1711,7 +1714,6 @@ table.flows tbody td.center { text-align: center; }
   grid-template-columns: 40px 22px minmax(0, 1fr) 40px 22px minmax(0, 1fr);
 }
 .diff-cell--empty { background: var(--bg-surface-subtle); }
-.diff-line--split .diff-code { overflow-x: auto; }
 .diff-cell-left-border { border-left: 1px solid var(--border-surface-subtle); }
 
 .diff-cell--add { background: #e6ffec; }
@@ -1720,6 +1722,63 @@ table.flows tbody td.center { text-align: center; }
 .diff-cell--del { background: #ffebe9; }
 .diff-cell--del.diff-num { background: #ffd7d5; color: #cf222e; }
 .diff-cell--del.diff-sign { color: #cf222e; }
+
+/* Blame column (GitHub "View blame"): one annotation per hunk — avatar,
+   change message, relative time — with an age bar on the left. Rows that
+   continue the same hunk keep the bar but no text. */
+.diff-view--blame .diff-line { grid-template-columns: 260px 40px 40px 22px 1fr; }
+.diff-view--blame .diff-line--split {
+  grid-template-columns: 260px 40px 22px minmax(0, 1fr) 40px 22px minmax(0, 1fr);
+}
+.diff-head__cell--blame { flex: 0 0 260px; }
+.diff-head__cell--blame + .diff-head__cell { border-left: 1px solid var(--border-surface-subtle); }
+
+.diff-blame {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  padding: 0 10px 0 8px;
+  border-left: 3px solid transparent;
+  border-right: 1px solid var(--border-surface-subtle);
+  border-top: 1px solid var(--border-surface-subtle);
+  background: var(--bg-surface-default);
+  font-family: "Inter", sans-serif;
+  font-size: 12px;
+  line-height: 20px;
+  user-select: none;
+}
+.diff-blame--cont,
+.diff-line:first-child .diff-blame,
+.diff-head + .diff-line .diff-blame { border-top-color: transparent; }
+.diff-blame__avatar {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--bg-component-primary);
+  color: var(--text-on-color);
+  font-size: 8px;
+  line-height: 16px;
+  font-weight: 600;
+  text-align: center;
+  letter-spacing: 0.2px;
+}
+.diff-blame__msg {
+  flex: 1;
+  min-width: 0;
+  color: var(--text-default);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.diff-blame__when { flex-shrink: 0; color: var(--text-muted); white-space: nowrap; }
+
+/* Age bar: newest change is the warmest */
+.diff-blame--age-0 { border-left-color: #f97316; }
+.diff-blame--age-1 { border-left-color: #fdba74; }
+.diff-blame--age-2 { border-left-color: #fed7aa; }
+.diff-blame--age-4 { border-left-color: var(--border-divider-subtle); }
 
 /* ============ Pull journey: Create pull modal ============ */
 
