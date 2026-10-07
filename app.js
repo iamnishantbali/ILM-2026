@@ -1075,10 +1075,9 @@
     return s.replace(/<k>/g, '<span class="tk-key">').replace(/<s>/g, '<span class="tk-str">').replace(/<\/[ks]>/g, "</span>");
   }
 
-  /* Blame (GitHub "View blame" style): every line is attributed to the
-     snapshot that last touched it. Consecutive lines from the same snapshot
-     form one hunk; the annotation is shown once per hunk with an age bar
-     (newer = warmer). */
+  /* Audit view (GitHub "View blame" style): every line is attributed to the
+     user who last changed it. Consecutive lines from the same change form
+     one hunk; the user and time are shown once per hunk. */
   const diffCommits = [
     { who: "Priya Sharma", msg: "Create Task bridge flow", when: "4 months ago", date: "Jun 2, 2026", age: 4 },
     { who: "Arjun Mehta", msg: "Add Planful import step", when: "3 weeks ago", date: "Sep 15, 2026", age: 2 },
@@ -1088,16 +1087,11 @@
   // Commit index per cpDiff op, in order (del/add pairs share the change that made them)
   const diffBlameOf = [0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 0];
 
-  function initialsOf(name) {
-    return name.split(" ").map((w) => w[0]).join("").slice(0, 2).toUpperCase();
-  }
-
   function blameCellHtml(commitIdx, prevIdx) {
     const c = diffCommits[commitIdx];
-    if (commitIdx === prevIdx) return `<span class="diff-blame diff-blame--cont diff-blame--age-${c.age}"></span>`;
-    return `<span class="diff-blame diff-blame--age-${c.age}" title="${c.who} · ${c.date}">
-      <span class="diff-blame__avatar" aria-hidden="true">${initialsOf(c.who)}</span>
-      <span class="diff-blame__msg">${c.msg}</span>
+    if (commitIdx === prevIdx) return `<span class="diff-blame diff-blame--cont"></span>`;
+    return `<span class="diff-blame" title="${c.who} · ${c.date}">
+      <span class="diff-blame__who">${c.who}</span>
       <span class="diff-blame__when">${c.when}</span>
     </span>`;
   }
@@ -1159,7 +1153,7 @@
       return `<span class="diff-num${mod}">${cell.num}</span><span class="diff-sign${mod}">${sign}</span><pre class="diff-code${mod}">${diffTok(cell.s)}</pre>`;
     };
 
-    const headBlame = blame ? `<div class="diff-head__cell diff-head__cell--blame">Changed by</div>` : "";
+    const headBlame = blame ? `<div class="diff-head__cell diff-head__cell--blame" aria-hidden="true"></div>` : "";
     const head = `<div class="diff-head">${headBlame}<div class="diff-head__cell">Before pull</div><div class="diff-head__cell">After pull</div></div>`;
     let prev = -1;
     const body = rows
@@ -1177,39 +1171,33 @@
   }
 
   // One diff view per surface (Create pull review pane, Version history
-  // resources tab); each keeps its own Split/Unified mode and blame toggle.
-  function createDiffView(containerId, splitBtnId, unifiedBtnId, blameBtnId) {
+  // resources tab); each keeps its own mode: split, unified, or audit
+  // (split layout with a per-hunk "who / when" column).
+  function createDiffView(containerId, splitBtnId, unifiedBtnId, auditBtnId) {
     const container = document.getElementById(containerId);
-    const splitBtn = document.getElementById(splitBtnId);
-    const unifiedBtn = document.getElementById(unifiedBtnId);
-    const blameBtn = document.getElementById(blameBtnId);
+    const buttons = {
+      split: document.getElementById(splitBtnId),
+      unified: document.getElementById(unifiedBtnId),
+      audit: document.getElementById(auditBtnId),
+    };
     let mode = "split";
-    let blame = false;
 
     function render() {
-      container.classList.toggle("diff-view--blame", blame);
-      container.innerHTML = mode === "split" ? diffSplitHtml(blame) : diffUnifiedHtml(blame);
+      const audit = mode === "audit";
+      container.classList.toggle("diff-view--blame", audit);
+      container.innerHTML = mode === "unified" ? diffUnifiedHtml(false) : diffSplitHtml(audit);
     }
 
     function setMode(next) {
       mode = next;
-      splitBtn.classList.toggle("is-active", mode === "split");
-      splitBtn.setAttribute("aria-pressed", mode === "split" ? "true" : "false");
-      unifiedBtn.classList.toggle("is-active", mode === "unified");
-      unifiedBtn.setAttribute("aria-pressed", mode === "unified" ? "true" : "false");
+      Object.keys(buttons).forEach((m) => {
+        buttons[m].classList.toggle("is-active", m === mode);
+        buttons[m].setAttribute("aria-pressed", m === mode ? "true" : "false");
+      });
       render();
     }
 
-    function setBlame(next) {
-      blame = next;
-      blameBtn.classList.toggle("is-active", blame);
-      blameBtn.setAttribute("aria-pressed", blame ? "true" : "false");
-      render();
-    }
-
-    splitBtn.addEventListener("click", () => setMode("split"));
-    unifiedBtn.addEventListener("click", () => setMode("unified"));
-    blameBtn.addEventListener("click", () => setBlame(!blame));
+    Object.keys(buttons).forEach((m) => buttons[m].addEventListener("click", () => setMode(m)));
     return { render };
   }
 
