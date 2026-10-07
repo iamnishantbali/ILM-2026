@@ -1168,11 +1168,12 @@
 
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
-    document.getElementById("cp-compare-type").textContent = CP_CHANGE_TYPE_LABEL[cpSelectedResource.changeType] || "Update";
+    document.getElementById("cp-compare-type").textContent = `Action: ${CP_CHANGE_TYPE_LABEL[cpSelectedResource.changeType] || "Update"}`;
     const conflicted = resourceHasOpenConflict(cpSelectedResource);
     document.getElementById("cp-compare-conflict").hidden = !conflicted;
     document.getElementById("cp-usedby").textContent = `Used by : ${cpSelectedResource.usedBy}`;
     cpResolveBtn.hidden = !(cpStep === 2 && conflicted);
+    document.getElementById("cp-resolve-divider").hidden = cpResolveBtn.hidden;
     cpDiffView.render();
     updateCpNextState();
   }
@@ -1374,9 +1375,72 @@
     }
   }
 
+  /* .gitignore upload: drop zone + hidden file input, shown as a chip once chosen */
+  const ignoreFileInput = document.getElementById("ignore-file");
+  const ignoreDrop = document.getElementById("ignore-drop");
+  const ignoreFileChip = document.getElementById("ignore-file-chip");
+  let gitignorePatterns = 0;
+
+  function countGitignorePatterns(text) {
+    return text.split(/\r?\n/).filter((l) => l.trim() && !l.trim().startsWith("#")).length;
+  }
+
+  function formatBytes(n) {
+    return n < 1024 ? `${n} B` : `${(n / 1024).toFixed(1)} KB`;
+  }
+
+  function setGitignoreFile(file) {
+    if (!file) return;
+    const finish = (patterns) => {
+      gitignorePatterns = patterns;
+      document.getElementById("ignore-file-name").textContent = file.name;
+      document.getElementById("ignore-file-meta").textContent =
+        `${patterns} pattern${patterns === 1 ? "" : "s"} · ${formatBytes(file.size)}`;
+      ignoreDrop.hidden = true;
+      ignoreFileChip.hidden = false;
+    };
+    const reader = new FileReader();
+    reader.onload = () => finish(countGitignorePatterns(String(reader.result || "")));
+    reader.onerror = () => finish(0);
+    reader.readAsText(file);
+  }
+
+  function clearGitignoreFile() {
+    gitignorePatterns = 0;
+    ignoreFileInput.value = "";
+    ignoreFileChip.hidden = true;
+    ignoreDrop.hidden = false;
+  }
+
+  ignoreDrop.addEventListener("click", () => ignoreFileInput.click());
+  ignoreDrop.addEventListener("keydown", (e) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      ignoreFileInput.click();
+    }
+  });
+  ignoreFileInput.addEventListener("change", () => setGitignoreFile(ignoreFileInput.files[0]));
+  ["dragenter", "dragover"].forEach((t) =>
+    ignoreDrop.addEventListener(t, (e) => {
+      e.preventDefault();
+      ignoreDrop.classList.add("is-dragover");
+    })
+  );
+  ["dragleave", "drop"].forEach((t) =>
+    ignoreDrop.addEventListener(t, (e) => {
+      e.preventDefault();
+      ignoreDrop.classList.remove("is-dragover");
+    })
+  );
+  ignoreDrop.addEventListener("drop", (e) => setGitignoreFile(e.dataTransfer && e.dataTransfer.files[0]));
+  document.getElementById("ignore-file-remove").addEventListener("click", clearGitignoreFile);
+
   function saveIgnoredFields() {
     const n = ignoredCount();
-    showToast(n ? `${n} field${n === 1 ? "" : "s"} will be ignored during pull` : "No ignored fields set");
+    const parts = [];
+    if (n) parts.push(`${n} field${n === 1 ? "" : "s"}`);
+    if (gitignorePatterns) parts.push(`${gitignorePatterns} .gitignore pattern${gitignorePatterns === 1 ? "" : "s"}`);
+    showToast(parts.length ? `${parts.join(" and ")} will be ignored during pull` : "No ignored fields set");
   }
 
   document.getElementById("ignore-save").addEventListener("click", saveIgnoredFields);

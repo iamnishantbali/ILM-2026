@@ -1220,18 +1220,18 @@ table.flows tbody td.center { text-align: center; }
 }
 .badge-outline--green svg { color: #047857; }
 
-/* FX Badge — Size=sm, Variant=Soft, Color=Yellow (bg/semantic/warning-muted,
-   text/semantic/warning, icon/semantic/warning, radius-rounded) */
-.badge-soft--yellow {
-  background: #fefce8;
+/* FX Badge — Size=sm, Variant=Soft, Color=Red (bg/semantic/error-muted,
+   text/semantic/error, icon/semantic/error, radius-rounded) */
+.badge-soft--red {
+  background: #fef2f2;
   border-color: transparent;
-  color: #a16207;
+  color: var(--text-semantic-error);
   height: 20px;
   font-size: 12px;
   line-height: 16px;
   padding: 0 8px;
 }
-.badge-outline.badge-soft--yellow svg { color: #a16207; }
+.badge-outline.badge-soft--red svg { color: var(--icon-semantic-error); }
 
 .vh-item__title {
   font-size: 16px;
@@ -1507,6 +1507,9 @@ table.flows tbody td.center { text-align: center; }
   display: flex;
   align-items: center;
   gap: 8px;
+  /* Reserve the Conflict badge's 20px so the header height does not change
+     between resources with and without a conflict */
+  min-height: 20px;
   font-size: 12px;
   line-height: 16px;
   font-weight: 500;
@@ -2135,7 +2138,7 @@ table.flows tbody td.center { text-align: center; }
 
 .tree-item__warn,
 .tree-group .tree-item__warn,
-.cp-group .warn-icon { color: #ca8a04; }
+.cp-group .warn-icon { color: var(--icon-semantic-error); }
 
 .tree-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
 
@@ -2290,6 +2293,62 @@ table.flows tbody td.center { text-align: center; }
 
 
 .drawer__footer .btn--secondary { min-width: 72px; }
+
+/* .gitignore upload (Ignore fields drawer) */
+
+.field__hint {
+  margin: 0;
+  font-size: 12px;
+  line-height: 16px;
+  color: var(--text-muted);
+}
+.field__hint-link { color: var(--text-semantic-info); font-weight: 500; text-decoration: none; }
+.field__hint-link:hover { text-decoration: underline; }
+
+.file-drop {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 16px;
+  border: 1px dashed var(--border-component-input);
+  border-radius: var(--radius-input);
+  background: var(--bg-surface-subtle);
+  color: var(--text-muted);
+  font-size: 14px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: background-color 0.12s ease, border-color 0.12s ease;
+}
+.file-drop svg { color: var(--icon-muted); flex-shrink: 0; }
+.file-drop:hover,
+.file-drop:focus-visible,
+.file-drop.is-dragover {
+  background: var(--bg-surface-default);
+  border-color: var(--border-surface-default);
+  outline: none;
+}
+.file-drop.is-dragover { border-style: solid; }
+.file-drop__browse { color: var(--text-default); font-weight: 500; text-decoration: underline; }
+.file-drop[hidden] { display: none; }
+
+.file-chip {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 6px 0 12px;
+  border: 1px solid var(--border-component-input);
+  border-radius: var(--radius-input);
+  background: var(--bg-surface-default);
+  font-size: 14px;
+  line-height: 20px;
+}
+.file-chip svg { color: var(--icon-default); flex-shrink: 0; }
+.file-chip__name { font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.file-chip__meta { flex: 1; color: var(--text-muted); font-size: 12px; white-space: nowrap; }
+.file-chip__remove { flex-shrink: 0; }
+.file-chip[hidden] { display: none; }
 
 /* Collapsible Resources sidebar (Version history panel + Create pull modal) */
 
