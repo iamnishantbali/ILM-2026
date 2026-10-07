@@ -1075,16 +1075,43 @@
     return s.replace(/<k>/g, '<span class="tk-key">').replace(/<s>/g, '<span class="tk-str">').replace(/<\/[ks]>/g, "</span>");
   }
 
-  function diffUnifiedHtml() {
+  /* Audit view (GitHub "View blame" style): every line is attributed to the
+     user who last changed it. Consecutive lines from the same change form
+     one hunk; the user and time are shown once per hunk. */
+  const diffCommits = [
+    { who: "Priya Sharma", msg: "Create Task bridge flow", when: "4 months ago", date: "Jun 2, 2026", age: 4 },
+    { who: "Arjun Mehta", msg: "Add Planful import step", when: "3 weeks ago", date: "Sep 15, 2026", age: 2 },
+    { who: "Nishant Bali", msg: "Disable flow during migration", when: "2 days ago", date: "Oct 5, 2026", age: 1 },
+    { who: "Nishant Bali", msg: "Run page generators in parallel", when: "5 hours ago", date: "Oct 7, 2026", age: 0 },
+  ];
+  // Commit index per cpDiff op, in order (del/add pairs share the change that made them)
+  const diffBlameOf = [0, 0, 2, 2, 0, 0, 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 3, 3, 0];
+
+  function blameCellHtml(commitIdx, prevIdx) {
+    const c = diffCommits[commitIdx];
+    if (commitIdx === prevIdx) return `<span class="diff-blame diff-blame--cont"></span>`;
+    return `<span class="diff-blame" title="${c.who} · ${c.date}">
+      <span class="diff-blame__who">${c.who}</span>
+      <span class="diff-blame__when">${c.when}</span>
+    </span>`;
+  }
+
+  function diffUnifiedHtml(blame) {
     let o = 0;
     let n = 0;
+    let prev = -1;
     return cpDiff
-      .map((op) => {
+      .map((op, idx) => {
         const cls = op.t === "add" ? " diff-line--add" : op.t === "del" ? " diff-line--del" : "";
         const oldNum = op.t === "add" ? "" : ++o;
         const newNum = op.t === "del" ? "" : ++n;
         const sign = op.t === "add" ? "+" : op.t === "del" ? "-" : "";
-        return `<div class="diff-line${cls}">
+        let blameCell = "";
+        if (blame) {
+          blameCell = blameCellHtml(diffBlameOf[idx], prev);
+          prev = diffBlameOf[idx];
+        }
+        return `<div class="diff-line${cls}">${blameCell}
           <span class="diff-num">${oldNum}</span><span class="diff-num">${newNum}</span>
           <span class="diff-sign">${sign}</span><pre class="diff-code">${diffTok(op.s)}</pre>
         </div>`;
@@ -1092,7 +1119,7 @@
       .join("");
   }
 
-  function diffSplitHtml() {
+  function diffSplitHtml(blame) {
     // Pair removed/added runs side by side, GitHub-style.
     const rows = [];
     let o = 0;
@@ -1100,18 +1127,19 @@
     let i = 0;
     while (i < cpDiff.length) {
       if (cpDiff[i].t === "ctx") {
-        rows.push({ l: { num: ++o, s: cpDiff[i].s, t: "ctx" }, r: { num: ++n, s: cpDiff[i].s, t: "ctx" } });
+        rows.push({ c: diffBlameOf[i], l: { num: ++o, s: cpDiff[i].s, t: "ctx" }, r: { num: ++n, s: cpDiff[i].s, t: "ctx" } });
         i += 1;
         continue;
       }
       const dels = [];
       const adds = [];
-      while (i < cpDiff.length && cpDiff[i].t === "del") dels.push(cpDiff[i++]);
-      while (i < cpDiff.length && cpDiff[i].t === "add") adds.push(cpDiff[i++]);
+      while (i < cpDiff.length && cpDiff[i].t === "del") dels.push({ op: cpDiff[i], c: diffBlameOf[i++] });
+      while (i < cpDiff.length && cpDiff[i].t === "add") adds.push({ op: cpDiff[i], c: diffBlameOf[i++] });
       for (let k = 0; k < Math.max(dels.length, adds.length); k += 1) {
         rows.push({
-          l: dels[k] ? { num: ++o, s: dels[k].s, t: "del" } : null,
-          r: adds[k] ? { num: ++n, s: adds[k].s, t: "add" } : null,
+          c: (adds[k] || dels[k]).c,
+          l: dels[k] ? { num: ++o, s: dels[k].op.s, t: "del" } : null,
+          r: adds[k] ? { num: ++n, s: adds[k].op.s, t: "add" } : null,
         });
       }
     }
@@ -1125,44 +1153,56 @@
       return `<span class="diff-num${mod}">${cell.num}</span><span class="diff-sign${mod}">${sign}</span><pre class="diff-code${mod}">${diffTok(cell.s)}</pre>`;
     };
 
-    const head = `<div class="diff-head"><div class="diff-head__cell">Before pull</div><div class="diff-head__cell">After pull</div></div>`;
+    const headBlame = blame ? `<div class="diff-head__cell diff-head__cell--blame" aria-hidden="true"></div>` : "";
+    const head = `<div class="diff-head">${headBlame}<div class="diff-head__cell">Before pull</div><div class="diff-head__cell">After pull</div></div>`;
+    let prev = -1;
     const body = rows
       .map((row) => {
         const right = side(row.r, "add").replace('class="diff-num', 'class="diff-num diff-cell-left-border');
-        return `<div class="diff-line diff-line--split">${side(row.l, "del")}${right}</div>`;
+        let blameCell = "";
+        if (blame) {
+          blameCell = blameCellHtml(row.c, prev);
+          prev = row.c;
+        }
+        return `<div class="diff-line diff-line--split">${blameCell}${side(row.l, "del")}${right}</div>`;
       })
       .join("");
     return head + body;
   }
 
   // One diff view per surface (Create pull review pane, Version history
-  // resources tab); each keeps its own Split/Unified mode.
-  function createDiffView(containerId, splitBtnId, unifiedBtnId) {
+  // resources tab); each keeps its own mode: split, unified, or audit
+  // (split layout with a per-hunk "who / when" column).
+  function createDiffView(containerId, splitBtnId, unifiedBtnId, auditBtnId) {
     const container = document.getElementById(containerId);
-    const splitBtn = document.getElementById(splitBtnId);
-    const unifiedBtn = document.getElementById(unifiedBtnId);
+    const buttons = {
+      split: document.getElementById(splitBtnId),
+      unified: document.getElementById(unifiedBtnId),
+      audit: document.getElementById(auditBtnId),
+    };
     let mode = "split";
 
     function render() {
-      container.innerHTML = mode === "split" ? diffSplitHtml() : diffUnifiedHtml();
+      const audit = mode === "audit";
+      container.classList.toggle("diff-view--blame", audit);
+      container.innerHTML = mode === "unified" ? diffUnifiedHtml(false) : diffSplitHtml(audit);
     }
 
     function setMode(next) {
       mode = next;
-      splitBtn.classList.toggle("is-active", mode === "split");
-      splitBtn.setAttribute("aria-pressed", mode === "split" ? "true" : "false");
-      unifiedBtn.classList.toggle("is-active", mode === "unified");
-      unifiedBtn.setAttribute("aria-pressed", mode === "unified" ? "true" : "false");
+      Object.keys(buttons).forEach((m) => {
+        buttons[m].classList.toggle("is-active", m === mode);
+        buttons[m].setAttribute("aria-pressed", m === mode ? "true" : "false");
+      });
       render();
     }
 
-    splitBtn.addEventListener("click", () => setMode("split"));
-    unifiedBtn.addEventListener("click", () => setMode("unified"));
+    Object.keys(buttons).forEach((m) => buttons[m].addEventListener("click", () => setMode(m)));
     return { render };
   }
 
-  const cpDiffView = createDiffView("cp-diff", "cp-diff-split", "cp-diff-unified");
-  const vhDiffView = createDiffView("vh-diff", "vh-diff-split", "vh-diff-unified");
+  const cpDiffView = createDiffView("cp-diff", "cp-diff-split", "cp-diff-unified", "cp-diff-blame");
+  const vhDiffView = createDiffView("vh-diff", "vh-diff-split", "vh-diff-unified", "vh-diff-blame");
 
   const CP_CHANGE_TYPE_LABEL = { update: "Update", new: "New", delete: "Delete" };
 
