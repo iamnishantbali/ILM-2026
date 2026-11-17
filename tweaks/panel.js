@@ -13,7 +13,7 @@
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "ilm-variants";
+  const STORAGE_KEY = "ilm-variants-v2";
 
   // key, label, hint, options [{v, l}], team default, kind ("css" | "js")
   const SECTIONS = [
@@ -31,7 +31,7 @@
     {
       title: "Diff reviewer",
       items: [
-        { key: "auditView", label: "Audit view", hint: "Third button in the view switcher", options: [{ v: "on", l: "On" }, { v: "off", l: "Off" }], def: "on", kind: "css", toggle: true },
+        { key: "auditView", label: "Audit view", hint: "Third button in the view switcher", options: [{ v: "on", l: "On" }, { v: "off", l: "Off" }], def: "off", kind: "css", toggle: true },
         { key: "diffToggle", label: "View switcher", options: [{ v: "icons", l: "Icons" }, { v: "text", l: "Icons + text" }], def: "icons", kind: "css" },
         { key: "defaultDiff", label: "Default view", options: [{ v: "split", l: "Split" }, { v: "unified", l: "Unified" }, { v: "audit", l: "Audit" }], def: "split", kind: "diff" },
       ],
