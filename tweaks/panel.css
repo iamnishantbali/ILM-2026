@@ -210,6 +210,18 @@
 [data-v-resourcesreadonly="on"] #cp-selectall-wrap { display: none; }
 [data-v-resourcesreadonly="on"] .cp-card--assets .cp-item { cursor: default; }
 [data-v-resourcesreadonly="on"] .cp-card--assets .cp-group__header { gap: 8px; }
+/* …shown as a numbered list, restarting in each accordion */
+[data-v-resourcesreadonly="on"] .cp-card--assets .cp-group__body { counter-reset: cp-res; }
+[data-v-resourcesreadonly="on"] .cp-card--assets .cp-item { gap: 8px; }
+[data-v-resourcesreadonly="on"] .cp-card--assets .cp-item::before {
+  counter-increment: cp-res;
+  content: counter(cp-res) ".";
+  flex-shrink: 0;
+  min-width: 20px;
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-muted);
+}
 
 /* Merge progress: normal 3.5s (team) / fast */
 [data-v-mergefast="on"] .merge-progress__bar { transition-duration: 1s; }
