@@ -118,6 +118,7 @@
   color: var(--text-muted);
   cursor: pointer;
 }
+.vp-seg__btn[hidden] { display: none; }
 .vp-seg__btn.is-active {
   background: var(--bg-surface-default);
   color: var(--text-default);
@@ -167,6 +168,10 @@
 [data-v-conflictcolor="yellow"] .tree-item__warn,
 [data-v-conflictcolor="yellow"] .tree-group .tree-item__warn,
 [data-v-conflictcolor="yellow"] .cp-group .warn-icon { color: #ca8a04; }
+
+/* Audit view: on (team) / off — Split and Unified only */
+[data-v-auditview="off"] #cp-diff-blame,
+[data-v-auditview="off"] #vh-diff-blame { display: none; }
 
 /* Diff view toggle: icons (team) / icons with text labels */
 [data-v-difftoggle="text"] .seg-toggle--icons .seg-toggle__btn { width: auto; padding: 0 10px; gap: 6px; }

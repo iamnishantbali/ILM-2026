@@ -31,6 +31,7 @@
     {
       title: "Diff reviewer",
       items: [
+        { key: "auditView", label: "Audit view", hint: "Third button in the view switcher", options: [{ v: "on", l: "On" }, { v: "off", l: "Off" }], def: "on", kind: "css", toggle: true },
         { key: "diffToggle", label: "View switcher", options: [{ v: "icons", l: "Icons" }, { v: "text", l: "Icons + text" }], def: "icons", kind: "css" },
         { key: "defaultDiff", label: "Default view", options: [{ v: "split", l: "Split" }, { v: "unified", l: "Unified" }, { v: "audit", l: "Audit" }], def: "split", kind: "diff" },
       ],
@@ -115,7 +116,7 @@
     applyCss();
     writeStorage(state);
     if (typeof window.ILM_APPLY_VARIANTS === "function") window.ILM_APPLY_VARIANTS();
-    if (changedKey === "defaultDiff" && typeof window.ILM_SET_DIFF_MODE === "function") {
+    if ((changedKey === "defaultDiff" || changedKey === "auditView") && typeof window.ILM_SET_DIFF_MODE === "function") {
       window.ILM_SET_DIFF_MODE(state.defaultDiff);
     }
   }
@@ -207,6 +208,8 @@
           control.querySelectorAll(".vp-seg__btn").forEach((b) => b.classList.toggle("is-active", b.dataset.v === String(v)));
         }
       });
+      const auditBtn = rows.defaultDiff.control.querySelector('[data-v="audit"]');
+      auditBtn.hidden = state.auditView === "off";
       const n = changedCount();
       count.textContent = String(n);
       count.hidden = n === 0;
@@ -215,6 +218,9 @@
     function set(key, value) {
       if (state[key] === value) return;
       state[key] = value;
+      // Without the Audit view, the diff falls back to Split
+      if (key === "auditView" && value === "off" && state.defaultDiff === "audit") state.defaultDiff = "split";
+      if (key === "defaultDiff" && value === "audit" && state.auditView === "off") state.auditView = "on";
       applyAll(key);
       sync();
     }
