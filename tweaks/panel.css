@@ -212,7 +212,7 @@
 [data-v-resourcesreadonly="on"] .cp-card--assets .cp-group__header { gap: 8px; }
 /* …shown as a numbered list, restarting in each accordion */
 [data-v-resourcesreadonly="on"] .cp-card--assets .cp-group__body { counter-reset: cp-res; }
-[data-v-resourcesreadonly="on"] .cp-card--assets .cp-item { gap: 8px; }
+[data-v-resourcesreadonly="on"] .cp-card--assets .cp-item { gap: 8px; color: var(--text-muted); }
 [data-v-resourcesreadonly="on"] .cp-card--assets .cp-item::before {
   counter-increment: cp-res;
   content: counter(cp-res) ".";
