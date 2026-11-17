@@ -1,0 +1,204 @@
+/* ============================================================
+   Prototype variants panel — tweaks build only.
+   Variant values are mirrored as data-v-* attributes on <html>; the
+   CSS-driven variants below key off those. JS-driven ones are read by
+   app.js through window.ILM_VARIANTS.
+   ============================================================ */
+
+/* ---------- Panel chrome ---------- */
+
+.vp-fab {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 400;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  height: 40px;
+  padding: 0 14px 0 12px;
+  border: 1px solid var(--border-component-input);
+  border-radius: 9999px;
+  background: var(--bg-surface-default);
+  color: var(--text-default);
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06);
+  cursor: pointer;
+}
+.vp-fab:hover { background: var(--bg-surface-subtle); }
+.vp-fab svg { color: var(--icon-default); }
+.vp-fab__count {
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  background: var(--bg-component-primary);
+  color: var(--text-on-color);
+  font-size: 11px;
+  line-height: 18px;
+  text-align: center;
+}
+.vp-fab__count[hidden] { display: none; }
+
+.vp-panel {
+  position: fixed;
+  right: 20px;
+  bottom: 68px;
+  z-index: 400;
+  width: 320px;
+  max-height: calc(100vh - 88px);
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--border-component-input);
+  border-radius: 12px;
+  background: var(--bg-surface-default);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.12), 0 2px 6px rgba(0, 0, 0, 0.06);
+  opacity: 0;
+  transform: translateY(8px);
+  pointer-events: none;
+  transition: opacity 0.15s ease, transform 0.15s ease;
+}
+.vp-panel.is-open { opacity: 1; transform: none; pointer-events: auto; }
+
+.vp-panel__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 14px 12px 12px 16px;
+  border-bottom: 1px solid var(--border-divider-subtle);
+}
+.vp-panel__title { font-size: 14px; font-weight: 600; line-height: 20px; }
+.vp-panel__hint { font-size: 12px; line-height: 16px; color: var(--text-muted); }
+
+.vp-panel__body {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  padding: 8px 16px 12px;
+}
+
+.vp-section {
+  padding: 8px 0 2px;
+  font-size: 11px;
+  line-height: 16px;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.vp-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border-divider-subtle);
+}
+.vp-row:last-child { border-bottom: none; }
+.vp-row__label { font-size: 13px; line-height: 18px; min-width: 0; }
+.vp-row__label small { display: block; color: var(--text-muted); font-size: 11px; line-height: 14px; }
+
+.vp-seg {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 2px;
+  border: 1px solid var(--border-component-input);
+  border-radius: 8px;
+  background: var(--bg-surface-subtle);
+}
+.vp-seg__btn {
+  height: 24px;
+  padding: 0 9px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+}
+.vp-seg__btn.is-active {
+  background: var(--bg-surface-default);
+  color: var(--text-default);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+}
+
+.vp-switch {
+  position: relative;
+  flex-shrink: 0;
+  width: 34px;
+  height: 20px;
+  border-radius: 9999px;
+  background: var(--border-surface-default);
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+.vp-switch::after {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  transition: transform 0.15s ease;
+}
+.vp-switch[aria-checked="true"] { background: var(--bg-component-primary); }
+.vp-switch[aria-checked="true"]::after { transform: translateX(14px); }
+
+.vp-panel__footer {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  border-top: 1px solid var(--border-divider-subtle);
+}
+.vp-panel__footer .btn { flex: 1; }
+
+.vp-changed .vp-row__label { font-weight: 500; }
+
+/* ---------- CSS-driven variants ---------- */
+
+/* Conflict colour: red (team) / yellow */
+[data-v-conflictcolor="yellow"] .badge-soft--red { background: #fefce8; color: #a16207; }
+[data-v-conflictcolor="yellow"] .badge-outline.badge-soft--red svg { color: #a16207; }
+[data-v-conflictcolor="yellow"] .tree-item__warn,
+[data-v-conflictcolor="yellow"] .tree-group .tree-item__warn,
+[data-v-conflictcolor="yellow"] .cp-group .warn-icon { color: #ca8a04; }
+
+/* Diff view toggle: icons (team) / icons with text labels */
+[data-v-difftoggle="text"] .seg-toggle--icons .seg-toggle__btn { width: auto; padding: 0 10px; gap: 6px; }
+[data-v-difftoggle="text"] .seg-toggle--icons .seg-toggle__btn::after {
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 20px;
+}
+[data-v-difftoggle="text"] .seg-toggle--icons [aria-label="Split view"]::after { content: "Split"; }
+[data-v-difftoggle="text"] .seg-toggle--icons [aria-label="Unified view"]::after { content: "Unified"; }
+[data-v-difftoggle="text"] .seg-toggle--icons [aria-label="Audit view"]::after { content: "Audit"; }
+
+/* Resolve conflict button: primary (team) / outline */
+[data-v-resolvestyle="outline"] #cp-resolve-btn {
+  background: var(--bg-surface-default);
+  color: var(--text-default);
+  border: 1px solid var(--border-component-input);
+  box-shadow: var(--shadow-sm);
+}
+[data-v-resolvestyle="outline"] #cp-resolve-btn:hover { background: var(--bg-surface-subtle); }
+
+/* Header divider: only with Resolve conflict (team) / always */
+[data-v-headerdivider="always"] #cp-resolve-divider[hidden] { display: block; }
+
+/* Stepper: revolving ring on (team) / off */
+[data-v-stepperanim="off"] .cp-step.is-current .cp-step__circle::before { animation: none; }
+
+/* Group-level conflict icon: on (team) / off */
+[data-v-groupwarn="off"] .tree-group .tree-item__warn { display: none; }
+
+/* .gitignore upload in the Ignore fields drawer: on (team) / off */
+[data-v-gitignore="off"] #ignore-gitignore-field { display: none; }
+
+/* Merge progress: normal 3.5s (team) / fast */
+[data-v-mergefast="on"] .merge-progress__bar { transition-duration: 1s; }

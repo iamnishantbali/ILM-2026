@@ -15,6 +15,12 @@
 (function () {
   "use strict";
 
+  /* Prototype variants: a variants panel (tweaks build only) can set
+     window.ILM_VARIANTS before this script runs; every read falls back to
+     the team default, so the plain build behaves exactly as before. */
+  const variant = (key, fallback) =>
+    window.ILM_VARIANTS && Object.prototype.hasOwnProperty.call(window.ILM_VARIANTS, key) ? window.ILM_VARIANTS[key] : fallback;
+
   /* ---------- Data ---------- */
 
   const integrations = [
@@ -866,7 +872,7 @@
       cpNext.disabled = false;
       closePullModal();
       showToast("Changes merged into Production · Nishant's Integration");
-    }, 3800);
+    }, variant("mergeFast", false) ? 1300 : 3800);
   }
 
   /* Step 1: selects */
@@ -996,6 +1002,7 @@
   }
 
   function hasUnresolvedConflicts() {
+    if (!variant("blockNextOnConflicts", true)) return false;
     return pullResources.some((g) => g.items.some((it) => resourceHasOpenConflict(it)));
   }
 
@@ -1198,7 +1205,7 @@
     }
 
     Object.keys(buttons).forEach((m) => buttons[m].addEventListener("click", () => setMode(m)));
-    return { render };
+    return { render, setMode };
   }
 
   const cpDiffView = createDiffView("cp-diff", "cp-diff-split", "cp-diff-unified", "cp-diff-blame");
@@ -1206,9 +1213,18 @@
 
   const CP_CHANGE_TYPE_LABEL = { update: "Update", new: "New", delete: "Delete" };
 
+  window.ILM_APPLY_VARIANTS = function () {
+    if (cpSelectedResource) renderCpCompare();
+    updateCpNextState();
+  };
+  window.ILM_SET_DIFF_MODE = function (mode) {
+    cpDiffView.setMode(mode);
+    vhDiffView.setMode(mode);
+  };
+
   function renderCpCompare() {
     document.getElementById("cp-compare-title").textContent = cpSelectedResource.name;
-    document.getElementById("cp-compare-type").textContent = `Action: ${CP_CHANGE_TYPE_LABEL[cpSelectedResource.changeType] || "Update"}`;
+    document.getElementById("cp-compare-type").textContent = `${variant("actionPrefix", true) ? "Action: " : ""}${CP_CHANGE_TYPE_LABEL[cpSelectedResource.changeType] || "Update"}`;
     const conflicted = resourceHasOpenConflict(cpSelectedResource);
     document.getElementById("cp-compare-conflict").hidden = !conflicted;
     document.getElementById("cp-usedby").textContent = `Used by : ${cpSelectedResource.usedBy}`;
