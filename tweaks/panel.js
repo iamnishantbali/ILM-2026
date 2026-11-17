@@ -13,7 +13,7 @@
 (function () {
   "use strict";
 
-  const STORAGE_KEY = "ilm-variants-v2";
+  const STORAGE_KEY = "ilm-variants-v3";
 
   // key, label, hint, options [{v, l}], team default, kind ("css" | "js")
   const SECTIONS = [
@@ -39,7 +39,7 @@
     {
       title: "Select resources step",
       items: [
-        { key: "resourcesReadOnly", label: "Read-only resource list", hint: "No checkboxes; everything listed is pulled", options: [{ v: false, l: "Off" }, { v: true, l: "On" }], def: false, kind: "js", toggle: true, attr: (v) => (v ? "on" : "off") },
+        { key: "resourcesReadOnly", label: "Read-only resource list", hint: "No checkboxes; everything listed is pulled", options: [{ v: false, l: "Off" }, { v: true, l: "On" }], def: true, kind: "js", toggle: true, attr: (v) => (v ? "on" : "off") },
       ],
     },
     {
