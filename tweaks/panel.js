@@ -37,6 +37,12 @@
       ],
     },
     {
+      title: "Select resources step",
+      items: [
+        { key: "resourcesReadOnly", label: "Read-only resource list", hint: "No checkboxes; everything listed is pulled", options: [{ v: false, l: "Off" }, { v: true, l: "On" }], def: false, kind: "js", toggle: true, attr: (v) => (v ? "on" : "off") },
+      ],
+    },
+    {
       title: "Wizard & drawers",
       items: [
         { key: "stepperAnim", label: "Revolving step ring", options: [{ v: "on", l: "On" }, { v: "off", l: "Off" }], def: "on", kind: "css", toggle: true },

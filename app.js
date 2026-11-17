@@ -908,7 +908,7 @@
     const ready = sourceChosen();
     cpAssetsEmpty.hidden = ready;
     cpAssetsList.hidden = !ready;
-    cpSelectAllWrap.hidden = !ready;
+    cpSelectAllWrap.hidden = !ready || variant("resourcesReadOnly", false);
     if (ready) renderAssetGroups();
   }
 
@@ -927,6 +927,10 @@
   }
 
   function renderAssetGroups() {
+    // Read-only variant: every listed resource is pulled, nothing is selectable
+    const readOnly = variant("resourcesReadOnly", false);
+    if (readOnly) assetGroups.forEach((g) => g.items.forEach((it) => { it.checked = true; }));
+    cpAssetsList.classList.toggle("is-readonly", readOnly);
     cpAssetsList.innerHTML = assetGroups
       .map((g, gi) => {
         const state = groupState(g);
@@ -964,6 +968,7 @@
     });
     cpAssetsList.querySelectorAll("[data-gcbx]").forEach((el) => {
       el.addEventListener("click", () => {
+        if (readOnly) return;
         const g = assetGroups[Number(el.dataset.gcbx)];
         const target = groupState(g) !== "checked";
         g.items.forEach((it) => (it.checked = target));
@@ -972,6 +977,7 @@
     });
     cpAssetsList.querySelectorAll(".cp-item").forEach((el) => {
       el.addEventListener("click", () => {
+        if (readOnly) return;
         const it = assetGroups[Number(el.dataset.g)].items[Number(el.dataset.i)];
         it.checked = !it.checked;
         renderAssetGroups();
@@ -1216,6 +1222,9 @@
   window.ILM_APPLY_VARIANTS = function () {
     if (cpSelectedResource) renderCpCompare();
     updateCpNextState();
+    renderAssetGroups();
+    // Select all is shown only once resources are listed (empty state hidden) and the list is selectable
+    cpSelectAllWrap.hidden = !cpAssetsEmpty.hidden || variant("resourcesReadOnly", false);
   };
   window.ILM_SET_DIFF_MODE = function (mode) {
     cpDiffView.setMode(mode);

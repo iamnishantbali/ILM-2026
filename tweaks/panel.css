@@ -205,5 +205,11 @@
 /* .gitignore upload in the Ignore fields drawer: on (team) / off */
 [data-v-gitignore="off"] #ignore-gitignore-field { display: none; }
 
+/* Select resources: read-only list (no checkboxes, nothing selectable) */
+[data-v-resourcesreadonly="on"] .cp-card--assets .cbx,
+[data-v-resourcesreadonly="on"] #cp-selectall-wrap { display: none; }
+[data-v-resourcesreadonly="on"] .cp-card--assets .cp-item { cursor: default; }
+[data-v-resourcesreadonly="on"] .cp-card--assets .cp-group__header { gap: 8px; }
+
 /* Merge progress: normal 3.5s (team) / fast */
 [data-v-mergefast="on"] .merge-progress__bar { transition-duration: 1s; }
